@@ -6,6 +6,8 @@ namespace Showcase.Client.Services
     {
         Task<LoginResponseDto?> LoginAsync(LoginRequestDto dto);
         Task<RegisterResponseDto?> RegisterAsync(RegisterRequestDto dto);
-        Task<LoginResponseDto?> RefreshTokenAsync(RefreshRequestDto dto);
+        Task LogoutAsync();
+        Task<string?> GetTokenAsync();         // required by the message handler
+        Task SetTokenAsync(string? token);     // optional, for manual token management
     }
 }

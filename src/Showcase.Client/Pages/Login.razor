@@ -1,0 +1,55 @@
+﻿@page "/login"
+@using Showcase.Contracts.Contracts.Auth
+@using Showcase.Client.Services
+@inject IAuthApiService AuthService
+@inject NavigationManager Nav
+
+<h3>Login</h3>
+
+<div class="mb-2">
+    <input class="form-control" @bind="Model.Email" placeholder="Email" />
+</div>
+<div class="mb-2">
+    <input class="form-control" @bind="Model.Password" type="password" placeholder="Password" />
+</div>
+<button class="btn btn-primary" @onclick="HandleLogin">Login</button>
+
+@if (!string.IsNullOrEmpty(Message))
+{
+    <div class="mt-2 text-danger">@Message</div>
+}
+
+@code {
+    // Use a mutable model for binding
+    private LoginModel Model = new LoginModel();
+    private string? Message;
+
+    private async Task HandleLogin()
+    {
+        Message = null;
+
+        try
+        {
+            var result = await AuthService.LoginAsync(new LoginRequestDto(Model.Email, Model.Password));
+
+            if (result != null && !string.IsNullOrEmpty(result.Token))
+            {
+                Nav.NavigateTo("/products");
+            }
+            else
+            {
+                Message = "Login failed. Check your credentials.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = $"Login error: {ex.Message}";
+        }
+    }
+
+    private class LoginModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}
