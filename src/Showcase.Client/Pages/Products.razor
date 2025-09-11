@@ -1,0 +1,62 @@
+﻿@page "/products"
+@using Microsoft.AspNetCore.Authorization
+@using Showcase.Client.Services
+@using Showcase.Contracts.Contracts.Product
+@inject IProductApiService ProductService
+@inject NavigationManager Nav
+@attribute [Authorize]
+
+<h3>Products</h3>
+
+@if (loading)
+{
+    <p>Loading products...</p>
+}
+else if (errorMessage != null)
+{
+    <p class="text-danger">@errorMessage</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in products)
+            {
+                <tr>
+                    <td>@product.Name</td>
+                    <td>@product.Description</td>
+                    <td>@product.Price.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<ProductDto> products = new();
+    private bool loading = true;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            products = (await ProductService.GetProductsAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading products: {ex.Message}";
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+}

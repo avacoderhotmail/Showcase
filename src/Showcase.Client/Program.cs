@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Showcase.Client;
@@ -8,18 +8,24 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-// Base API URL from configuration
 var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:8000";
 
-// register handler (transient)
+// --- Anonymous HttpClient (used only by AuthApiService) ---
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiBaseUrl) });
+
+// --- Auth Service & State Provider ---
+builder.Services.AddScoped<IAuthApiService, AuthApiService>();
+builder.Services.AddScoped<ApiAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
+    sp.GetRequiredService<ApiAuthenticationStateProvider>());
+
+// --- Authorization system ---
+builder.Services.AddAuthorizationCore();
+
+// --- Register handler that injects JWT ---
 builder.Services.AddTransient<AuthorizationMessageHandler>();
 
-// typed clients - each will have the AuthorizationMessageHandler in its pipeline
-builder.Services.AddHttpClient<IAuthApiService, AuthApiService>(client =>
-{
-    client.BaseAddress = new Uri(apiBaseUrl);
-}).AddHttpMessageHandler<AuthorizationMessageHandler>();
-
+// --- Typed HttpClients (use AuthorizationMessageHandler for JWT) ---
 builder.Services.AddHttpClient<IUserApiService, UserApiService>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);

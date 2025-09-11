@@ -75,6 +75,15 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorDev",
+        policy => policy
+            .WithOrigins("https://localhost:7286") // Blazor WASM origin
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
 
 var app = builder.Build();
 
@@ -86,6 +95,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Showcase API v1"));
 }
 
+app.UseCors("AllowBlazorDev");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
