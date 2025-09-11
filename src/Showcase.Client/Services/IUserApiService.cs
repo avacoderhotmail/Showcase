@@ -2,7 +2,7 @@
 
 namespace Showcase.Client.Services;
 
-public interface IUserService
+public interface IUserApiService
 {
     Task<IEnumerable<UserDto>> GetUsersAsync();
     Task<UserDto?> GetUserByIdAsync(string id);

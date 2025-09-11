@@ -2,7 +2,7 @@
 
 namespace Showcase.Client.Services;
 
-public interface IProductService
+public interface IProductApiService
 {
     Task<IEnumerable<ProductDto>> GetProductsAsync();
     Task<ProductDto?> GetProductByIdAsync(Guid id);

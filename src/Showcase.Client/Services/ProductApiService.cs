@@ -3,11 +3,11 @@ using System.Net.Http.Json;
 
 namespace Showcase.Client.Services;
 
-public class ProductService : IProductService
+public class ProductApiService : IProductApiService
 {
     private readonly HttpClient _http;
 
-    public ProductService(HttpClient http)
+    public ProductApiService(HttpClient http)
     {
         _http = http;
     }

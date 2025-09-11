@@ -3,11 +3,11 @@ using System.Net.Http.Json;
 
 namespace Showcase.Client.Services;
 
-public class UserService : IUserService
+public class UserApiService : IUserApiService
 {
     private readonly HttpClient _http;
 
-    public UserService(HttpClient http)
+    public UserApiService(HttpClient http)
     {
         _http = http;
     }
