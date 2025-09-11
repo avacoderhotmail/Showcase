@@ -8,7 +8,7 @@ public class AuthorizationMessageHandler : DelegatingHandler
 {
     private readonly IAuthApiService _auth;
 
-    public AuthorizationMessageHandler(IAuthApiService auth)
+    public AuthorizationMessageHandler(Microsoft.AspNetCore.Components.WebAssembly.Authentication.IAccessTokenProvider accessTokenProvider, IAuthApiService auth)
     {
         _auth = auth;
         InnerHandler = new HttpClientHandler(); // final handler
