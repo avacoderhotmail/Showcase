@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Showcase.Application.Interfaces;
+using Showcase.Contracts.Contracts.Auth;
 
 [ApiController]
 [Route("api/[controller]")]

@@ -1,4 +1,4 @@
-﻿namespace Showcase.Application.DTOs
+﻿namespace Showcase.Contracts.Contracts.Product
 {
     public record ProductCreateDto(string Name, string Description, decimal Price);
     public record ProductUpdateDto(string Name, string Description, decimal Price);

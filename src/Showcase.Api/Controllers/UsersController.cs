@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Showcase.Application.DTOs;
+using Showcase.Contracts.Contracts.User;
 using Showcase.Application.Interfaces;
 
 namespace Showcase.Api.Controllers

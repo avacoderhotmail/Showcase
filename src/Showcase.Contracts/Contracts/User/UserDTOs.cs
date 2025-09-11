@@ -1,5 +1,5 @@
 ﻿// DTOs/UserDto.cs
-namespace Showcase.Application.DTOs
+namespace Showcase.Contracts.Contracts.User
 {
     public class UserDto
     {
@@ -11,7 +11,7 @@ namespace Showcase.Application.DTOs
 }
 
 // DTOs/CreateUserDto.cs
-namespace Showcase.Application.DTOs
+namespace Showcase.Contracts.Contracts.User
 {
     public class CreateUserDto
     {
@@ -23,7 +23,7 @@ namespace Showcase.Application.DTOs
 }
 
 // DTOs/UpdateUserDto.cs
-namespace Showcase.Application.DTOs
+namespace Showcase.Contracts.Contracts.User
 {
     public class UpdateUserDto
     {

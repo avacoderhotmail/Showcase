@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Showcase.Application.DTOs;
+using Showcase.Contracts.Contracts.User;
 using Showcase.Application.Interfaces;
 using Showcase.Domain.Entities;
 

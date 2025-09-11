@@ -1,5 +1,5 @@
 ﻿// Interfaces/IUserService.cs
-using Showcase.Application.DTOs;
+using Showcase.Contracts.Contracts.User;
 
 namespace Showcase.Application.Interfaces
 {

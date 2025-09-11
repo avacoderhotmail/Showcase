@@ -1,4 +1,4 @@
-﻿using Showcase.Application.DTOs;
+﻿using Showcase.Contracts.Contracts.Product;
 using System;
 using System.Collections.Generic;
 using System.Linq;

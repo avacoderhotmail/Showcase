@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Showcase.Domain.Entities;
 using Showcase.Infrastructure.Data;
 using Showcase.Application.Interfaces;
+using Showcase.Contracts.Contracts.Auth;
 
 public class AuthService : IAuthService
 {

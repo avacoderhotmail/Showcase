@@ -1,4 +1,5 @@
-﻿namespace Showcase.Application.Interfaces
+﻿using Showcase.Contracts.Contracts.Auth;
+namespace Showcase.Application.Interfaces
 {
     public interface IAuthService
     {

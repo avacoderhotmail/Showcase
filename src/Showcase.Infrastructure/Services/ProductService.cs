@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Showcase.Application.DTOs;
+using Showcase.Contracts.Contracts.Product;
 using Showcase.Infrastructure.Data;
 using Showcase.Application.Interfaces;
 
