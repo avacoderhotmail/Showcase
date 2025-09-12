@@ -19,7 +19,7 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
         if (string.IsNullOrEmpty(token))
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
 
-        var claims = ParseClaimsFromJwt(token);
+        var claims = JwtParser.ParseClaimsFromJwt(token);
         var identity = new ClaimsIdentity(claims, "jwt");
         var user = new ClaimsPrincipal(identity);
 
@@ -28,41 +28,47 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
 
     public void NotifyUserAuthentication(string token)
     {
-        var claims = ParseClaimsFromJwt(token);
+        var claims = JwtParser.ParseClaimsFromJwt(token);
         var identity = new ClaimsIdentity(claims, "jwt");
         var user = new ClaimsPrincipal(identity);
+
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
     }
 
     public void NotifyUserLogout()
     {
         var anonymous = new ClaimsPrincipal(new ClaimsIdentity());
+
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(anonymous)));
     }
 
-    private static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
-    {
-        var claims = new List<Claim>();
-        var payload = jwt.Split('.')[1];
-        var jsonBytes = ParseBase64WithoutPadding(payload);
-        var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
+    //private static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
+    //{
+    //    var claims = new List<Claim>();
+    //    var payload = jwt.Split('.')[1];
+    //    var jsonBytes = ParseBase64WithoutPadding(payload);
+    //    var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
 
-        if (keyValuePairs != null)
-        {
-            foreach (var kvp in keyValuePairs)
-                claims.Add(new Claim(kvp.Key, kvp.Value.ToString() ?? string.Empty));
-        }
+    //    if (keyValuePairs != null)
+    //    {
+    //        foreach (var kvp in keyValuePairs)
+    //        {
+    //            var claimType = kvp.Key == "role" ? ClaimTypes.Role : kvp.Key;
+    //            claims.Add(new Claim(claimType, kvp.Value?.ToString() ?? string.Empty));
+    //        }
 
-        return claims;
-    }
+    //    }
 
-    private static byte[] ParseBase64WithoutPadding(string base64)
-    {
-        switch (base64.Length % 4)
-        {
-            case 2: base64 += "=="; break;
-            case 3: base64 += "="; break;
-        }
-        return Convert.FromBase64String(base64);
-    }
+    //    return claims;
+    //}
+
+    //private static byte[] ParseBase64WithoutPadding(string base64)
+    //{
+    //    switch (base64.Length % 4)
+    //    {
+    //        case 2: base64 += "=="; break;
+    //        case 3: base64 += "="; break;
+    //    }
+    //    return Convert.FromBase64String(base64);
+    //}
 }

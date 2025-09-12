@@ -8,6 +8,8 @@ using Showcase.Infrastructure.Data;
 using Showcase.Infrastructure.Services;
 using Showcase.Application.Interfaces;
 using System.Text;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,13 +34,15 @@ builder.Services.AddAuthentication(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = false,
-            ValidateAudience = false,
+            ValidateIssuer = true,
+            ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(key)
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            RoleClaimType = ClaimTypes.Role,
+            NameClaimType = "email"
         };
     });
 

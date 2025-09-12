@@ -8,10 +8,10 @@ public class AuthorizationMessageHandler : DelegatingHandler
 {
     private readonly IAuthApiService _auth;
 
-    public AuthorizationMessageHandler(Microsoft.AspNetCore.Components.WebAssembly.Authentication.IAccessTokenProvider accessTokenProvider, IAuthApiService auth)
+    public AuthorizationMessageHandler(IAuthApiService auth)
     {
         _auth = auth;
-        InnerHandler = new HttpClientHandler(); // final handler
+        //InnerHandler = new HttpClientHandler(); // final handler
     }
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)

@@ -3,6 +3,7 @@
 @using Showcase.Client.Services
 @inject IAuthApiService AuthService
 @inject NavigationManager Nav
+@inject ApiAuthenticationStateProvider AuthStateProvider
 
 <h3>Login</h3>
 
@@ -34,7 +35,17 @@
 
             if (result != null && !string.IsNullOrEmpty(result.Token))
             {
-                Nav.NavigateTo("/products");
+                // Save token
+                await AuthService.SetTokenAsync(result.Token);
+
+                // Tell the provider that we're authenticated
+                if (AuthStateProvider is ApiAuthenticationStateProvider apiAuthProvider)
+                {
+                    apiAuthProvider.NotifyUserAuthentication(result.Token);
+                }
+
+                // Redirect
+                Nav.NavigateTo("/");
             }
             else
             {

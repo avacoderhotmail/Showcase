@@ -49,11 +49,13 @@ public class AuthApiService : IAuthApiService
     {
         // prefer in-memory value for performance; fallback to localStorage
         if (!string.IsNullOrWhiteSpace(_inMemoryToken))
-            return _inMemoryToken;
+            return IsValid(_inMemoryToken) ? _inMemoryToken : null;
 
         try
         {
             _inMemoryToken = await _js.InvokeAsync<string?>("localStorage.getItem", TokenKey);
+            if(string.IsNullOrWhiteSpace(_inMemoryToken) || !IsValid(_inMemoryToken))
+                _inMemoryToken = null;
         }
         catch
         {
@@ -70,5 +72,15 @@ public class AuthApiService : IAuthApiService
             await _js.InvokeVoidAsync("localStorage.removeItem", TokenKey);
         else
             await _js.InvokeVoidAsync("localStorage.setItem", TokenKey, token);
+    }
+
+    private bool IsValid(string token)
+    {
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+        var exp = claims.FirstOrDefault(c => c.Type == "exp")?.Value;
+        if (exp == null) return false;
+
+        var expDate = DateTimeOffset.FromUnixTimeSeconds(long.Parse(exp));
+        return expDate > DateTimeOffset.UtcNow;
     }
 }

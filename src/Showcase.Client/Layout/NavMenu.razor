@@ -41,7 +41,7 @@
         {
             await AuthApiService.LogoutAsync();
         }
-
-        Navigation.NavigateTo("/login");
+        AuthStateProvider.NotifyUserLogout();
+        Navigation.NavigateTo("/");
     }
 }
