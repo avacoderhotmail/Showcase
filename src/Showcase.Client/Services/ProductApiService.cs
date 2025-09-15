@@ -18,7 +18,7 @@ public class ProductApiService : IProductApiService
                ?? Enumerable.Empty<ProductDto>();
     }
 
-    public async Task<ProductDto?> GetProductByIdAsync(Guid id)
+    public async Task<ProductDto?> GetProductByIdAsync(int id)
     {
         return await _http.GetFromJsonAsync<ProductDto>($"api/products/{id}");
     }
@@ -29,13 +29,13 @@ public class ProductApiService : IProductApiService
         return await response.Content.ReadFromJsonAsync<ProductDto>();
     }
 
-    public async Task<ProductDto?> UpdateProductAsync(Guid id, ProductUpdateDto dto)
+    public async Task<ProductDto?> UpdateProductAsync(int id, ProductUpdateDto dto)
     {
         var response = await _http.PutAsJsonAsync($"api/products/{id}", dto);
         return await response.Content.ReadFromJsonAsync<ProductDto>();
     }
 
-    public async Task<bool> DeleteProductAsync(Guid id)
+    public async Task<bool> DeleteProductAsync(int id)
     {
         var response = await _http.DeleteAsync($"api/products/{id}");
         return response.IsSuccessStatusCode;

@@ -5,8 +5,8 @@ namespace Showcase.Client.Services;
 public interface IProductApiService
 {
     Task<IEnumerable<ProductDto>> GetProductsAsync();
-    Task<ProductDto?> GetProductByIdAsync(Guid id);
+    Task<ProductDto?> GetProductByIdAsync(int id);
     Task<ProductDto?> CreateProductAsync(ProductCreateDto dto);
-    Task<ProductDto?> UpdateProductAsync(Guid id, ProductUpdateDto dto);
-    Task<bool> DeleteProductAsync(Guid id);
+    Task<ProductDto?> UpdateProductAsync(int id, ProductUpdateDto dto);
+    Task<bool> DeleteProductAsync(int id);
 }

@@ -1,29 +1,43 @@
-﻿@if (IsOpen)
+﻿@if (Show)
 {
-    <div class="modal-backdrop" @onclick="OnBackdropClick">
-        <div class="modal" @onclick:stopPropagation>
-            <div class="modal-header">
-                <h4>@Title</h4>
-                <button type="button" class="close-btn" @onclick="Close">×</button>
-            </div>
-            <div class="modal-body">
-                @ChildContent
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal fade show" style="display:block" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    @ChildContent
+                </div>
+                <div class="modal-footer">
+                    @FooterContent
+                </div>
             </div>
         </div>
     </div>
 }
 
 @code {
-    [Parameter] public bool IsOpen { get; set; }
-    [Parameter] public string Title { get; set; } = "";
-    [Parameter] public RenderFragment? ChildContent { get; set; }
-    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter]
+    public string Title { get; set; } = "Modal Title";
 
-    private async Task OnBackdropClick() => await Close();
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
 
-    private async Task Close()
+    [Parameter]
+    public RenderFragment FooterContent { get; set; }
+
+    [Parameter]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> ShowChanged { get; set; }
+
+    private Task CloseModal()
     {
-        if (OnClose.HasDelegate)
-            await OnClose.InvokeAsync();
+        Show = false;
+        return ShowChanged.InvokeAsync(Show);
     }
 }

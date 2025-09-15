@@ -28,7 +28,9 @@ else
             @foreach (var product in products)
             {
                 <tr>
-                    <td>@product.Name</td>
+                    <td>
+                        <a class="btn btn-link" href="@($"/products/{product.Id}")">@product.Name</a>
+                    </td>
                     <td>@product.Description</td>
                     <td>@product.Price.ToString("C")</td>
                 </tr>
@@ -38,32 +40,39 @@ else
 
 }
 
-<ReusableModal IsOpen="@isModalOpen" Title="Create Product" OnClose="CloseModal">
-    <EditForm Model="@newProduct" OnValidSubmit="HandleCreate">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+<ReusableModal Title="Create Product" Show="@isModalOpen" ShowChanged="@(value => isModalOpen = value)">
+    <ChildContent>
+        <EditForm Model="@newProduct" OnValidSubmit="HandleCreate">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-        <div>
-            <label>Name:</label>
-            <InputText @bind-Value="newProduct.Name" />
-        </div>
+            <div class="mb-3 row">
+                <label for="productName" class="col-sm-3 col-form-label">Name:</label>
+                <div class="col-sm-9">
+                    <InputText id="productName" class="form-control" @bind-Value="newProduct.Name" />
+                </div>
+            </div>
 
-        <div>
-            <label>Description:</label>
-            <InputTextArea @bind-Value="newProduct.Description" />
-        </div>
+            <div class="mb-3 row">
+                <label for="productDescription" class="col-sm-3 col-form-label">Description:</label>
+                <div class="col-sm-9">
+                    <InputTextArea id="productDescription" class="form-control" @bind-Value="newProduct.Description" />
+                </div>
+            </div>
 
-        <div>
-            <label>Price:</label>
-            <InputNumber @bind-Value="newProduct.Price" />
-        </div>
+            <div class="mb-3 row">
+                <label for="productPrice" class="col-sm-3 col-form-label">Price:</label>
+                <div class="col-sm-9">
+                    <InputNumber id="productPrice" class="form-control" @bind-Value="newProduct.Price" />
+                </div>
+            </div>
 
-        <div class="mt-3">
-            <button type="submit" class="btn btn-primary">Save</button>
-            <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
-        </div>
-    </EditForm>
-
+            <div class="mt-4 d-flex justify-content-end gap-2">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
+            </div>
+        </EditForm>
+    </ChildContent>
 </ReusableModal>
 
 @code {

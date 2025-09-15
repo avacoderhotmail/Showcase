@@ -9,6 +9,11 @@
     public record ProductUpdateDto(string Name, string Description, decimal Price);
     public record ProductReadDto(int Id, string Name, string Description, decimal Price, DateTime CreatedAt);
 
-    public record ProductDto ( int Id, string Name, string Description, decimal Price);
+    public class ProductDto() {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
+            }
 
 }

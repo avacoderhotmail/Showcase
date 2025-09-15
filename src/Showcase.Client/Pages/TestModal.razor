@@ -4,8 +4,9 @@
 <h3>Modal Test</h3>
 <button @onclick="() => isOpen = true">Open Modal</button>
 
-<ReusableModal IsOpen="@isOpen" Title="Hello" OnClose="() => isOpen = false">
-    <p>This is a test modal</p>
+<ReusableModal Title="Test Modal" Show="@isOpen" ShowChanged="@(value => isOpen = value)">
+    <p>This is a test modal content.</p>
+    <button class="btn btn-secondary" @onclick="() => isOpen = false">Close</button>
 </ReusableModal>
 
 @code {
