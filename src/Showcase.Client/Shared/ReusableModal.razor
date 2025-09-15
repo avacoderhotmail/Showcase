@@ -1,0 +1,29 @@
+﻿@if (IsOpen)
+{
+    <div class="modal-backdrop" @onclick="OnBackdropClick">
+        <div class="modal" @onclick:stopPropagation>
+            <div class="modal-header">
+                <h4>@Title</h4>
+                <button type="button" class="close-btn" @onclick="Close">×</button>
+            </div>
+            <div class="modal-body">
+                @ChildContent
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool IsOpen { get; set; }
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private async Task OnBackdropClick() => await Close();
+
+    private async Task Close()
+    {
+        if (OnClose.HasDelegate)
+            await OnClose.InvokeAsync();
+    }
+}

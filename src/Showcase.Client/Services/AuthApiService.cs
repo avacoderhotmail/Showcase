@@ -27,7 +27,7 @@ public class AuthApiService : IAuthApiService
         _inMemoryToken = token;
 
         if (!string.IsNullOrEmpty(token))
-            await _js.InvokeVoidAsync("localStorage.setItem", TokenKey, token);
+            await _js.InvokeVoidAsync("sessionStorage.setItem", TokenKey, token);
 
         return payload;
     }
@@ -42,7 +42,7 @@ public class AuthApiService : IAuthApiService
     public async Task LogoutAsync()
     {
         _inMemoryToken = null;
-        await _js.InvokeVoidAsync("localStorage.removeItem", TokenKey);
+        await _js.InvokeVoidAsync("sessionStorage.removeItem", TokenKey);
     }
 
     public async Task<string?> GetTokenAsync()
@@ -53,7 +53,7 @@ public class AuthApiService : IAuthApiService
 
         try
         {
-            _inMemoryToken = await _js.InvokeAsync<string?>("localStorage.getItem", TokenKey);
+            _inMemoryToken = await _js.InvokeAsync<string?>("sessionStorage.getItem", TokenKey);
             if(string.IsNullOrWhiteSpace(_inMemoryToken) || !IsValid(_inMemoryToken))
                 _inMemoryToken = null;
         }
@@ -69,9 +69,9 @@ public class AuthApiService : IAuthApiService
     {
         _inMemoryToken = token;
         if (string.IsNullOrEmpty(token))
-            await _js.InvokeVoidAsync("localStorage.removeItem", TokenKey);
+            await _js.InvokeVoidAsync("sessionStorage.removeItem", TokenKey);
         else
-            await _js.InvokeVoidAsync("localStorage.setItem", TokenKey, token);
+            await _js.InvokeVoidAsync("sessionStorage.setItem", TokenKey, token);
     }
 
     private bool IsValid(string token)

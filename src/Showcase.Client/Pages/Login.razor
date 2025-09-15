@@ -58,6 +58,16 @@
         }
     }
 
+    private async void HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            await HandleLogin();
+        }
+    }
+
+
+
     private class LoginModel
     {
         public string Email { get; set; } = string.Empty;

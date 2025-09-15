@@ -1,0 +1,13 @@
+﻿@page "/testmodal"
+@using Showcase.Client.Shared
+
+<h3>Modal Test</h3>
+<button @onclick="() => isOpen = true">Open Modal</button>
+
+<ReusableModal IsOpen="@isOpen" Title="Hello" OnClose="() => isOpen = false">
+    <p>This is a test modal</p>
+</ReusableModal>
+
+@code {
+    private bool isOpen;
+}

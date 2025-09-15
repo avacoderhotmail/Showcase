@@ -2,11 +2,13 @@
 @using Microsoft.AspNetCore.Authorization
 @using Showcase.Client.Services
 @using Showcase.Contracts.Contracts.User
+@using Showcase.Client.Shared
 @inject IUserApiService UserApiService
 @inject NavigationManager Nav
 @attribute [Authorize]
 
 <h3>Users</h3>
+<button @onclick="ShowModal">+ New User</button>
 
 @if (loading)
 {
@@ -23,6 +25,7 @@ else
             <tr>
                 <th>Email</th>
                 <th>Display Name</th>
+                <th>Roles</th>
             </tr>
         </thead>
         <tbody>
@@ -31,16 +34,42 @@ else
                 <tr>
                     <td>@user.Email</td>
                     <td>@user.DisplayName</td>
+                    <td>
+                        @if (user.Roles.Any())
+                        {
+                            <ul class="list-unstyled mb-0">
+                                @foreach (var role in user.Roles)
+                                {
+                                    <li>@role</li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <em>No roles assigned</em>
+                        }
+                    </td>
+
                 </tr>
             }
         </tbody>
     </table>
 }
 
+<ReusableModal />
+
 @code {
     private List<UserDto> users = new();
     private bool loading = true;
     private string? errorMessage;
+    private CreateUserDto newUser = new();
+    private bool isModalOpen = false;
+
+    private void ShowModal()
+    {
+        newUser = new CreateUserDto();
+        isModalOpen = true;
+    }
 
     protected override async Task OnInitializedAsync()
     {
