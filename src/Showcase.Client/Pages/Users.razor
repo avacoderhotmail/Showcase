@@ -1,0 +1,60 @@
+﻿@page "/users"
+@using Microsoft.AspNetCore.Authorization
+@using Showcase.Client.Services
+@using Showcase.Contracts.Contracts.User
+@inject IUserApiService UserApiService
+@inject NavigationManager Nav
+@attribute [Authorize]
+
+<h3>Users</h3>
+
+@if (loading)
+{
+    <p>Loading users...</p>
+}
+else if (errorMessage != null)
+{
+    <p class="text-danger">@errorMessage</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Display Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.Email</td>
+                    <td>@user.DisplayName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<UserDto> users = new();
+    private bool loading = true;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            users = (await UserApiService.GetUsersAsync()).ToList();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading users: {ex.Message}";
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+}
