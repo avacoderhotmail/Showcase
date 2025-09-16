@@ -20,4 +20,36 @@ public class RolesController : ControllerBase
         var roles = _roleManager.Roles.Select(r => r.Name).ToList();
         return Ok(roles);
     }
+
+    [HttpPost]
+    [Authorize(Roles = "Admin")] // only admins should create roles]
+    public async Task<IActionResult> CreateRole(string roleName)
+    {
+        if (string.IsNullOrEmpty(roleName))
+        {
+            return BadRequest("Role name cannot be empty.");
+        }
+
+        // Check if the role already exists
+        var roleExists = await _roleManager.RoleExistsAsync(roleName);
+
+        if (!roleExists)
+        {
+            // If the role doesn't exist, create it
+            var result = await _roleManager.CreateAsync(new IdentityRole(roleName));
+
+            if (result.Succeeded)
+            {
+                return Ok($"Role '{roleName}' created successfully.");
+            }
+            else
+            {
+                // Handle errors
+                var errors = result.Errors.Select(e => e.Description);
+                return BadRequest(new { errors });
+            }
+        }
+
+        return Conflict($"Role '{roleName}' already exists.");
+    }
 }

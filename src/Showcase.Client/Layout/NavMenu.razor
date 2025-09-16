@@ -19,9 +19,11 @@
                     <li>
                         <NavLink href="/products">Products</NavLink>
                     </li>
-                    <li>
-                        <NavLink href="/users">Users</NavLink>
-                    </li>
+                    <AuthorizeView Roles="Admin" Context="newContext">
+                        <li>
+                            <NavLink href="/users">Users</NavLink>
+                        </li>
+                    </AuthorizeView>
                 </Authorized>
                 <NotAuthorized>
                     <li>
