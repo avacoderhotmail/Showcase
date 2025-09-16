@@ -4,6 +4,7 @@
 @using Showcase.Client.Services
 @using Showcase.Contracts.Contracts.Product
 @inject IProductApiService ProductService
+@inject IJSRuntime JS
 @attribute [Authorize]
 
 <h3>Products</h3>
@@ -22,6 +23,7 @@ else
                 <th>Name</th>
                 <th>Description</th>
                 <th>Price</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -33,6 +35,10 @@ else
                     </td>
                     <td>@product.Description</td>
                     <td>@product.Price.ToString("C")</td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-warning" @onclick="() => EditProduct(product)">Edit</button>
+                        <button type="button" class="btn btn-sm btn-danger" @onclick="() => ConfirmDeleteProduct(product)">Delete</button>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -40,33 +46,58 @@ else
 
 }
 
-<ReusableModal Title="Create Product" Show="@isModalOpen" ShowChanged="@(value => isModalOpen = value)">
+<ReusableModal Title="@(isEditMode ? "Edit Product" : "Create Product")" Show="@isModalOpen" ShowChanged="@(value => isModalOpen = value)">
     <ChildContent>
         <EditForm Model="@newProduct" OnValidSubmit="HandleCreate">
             <DataAnnotationsValidator />
             <ValidationSummary />
-
-            <div class="mb-3 row">
-                <label for="productName" class="col-sm-3 col-form-label">Name:</label>
-                <div class="col-sm-9">
-                    <InputText id="productName" class="form-control" @bind-Value="newProduct.Name" />
+            @if (isEditMode)
+            {
+                <div class="mb-3 row">
+                    <label for="productName" class="col-sm-3 col-form-label">Name:</label>
+                    <div class="col-sm-9">
+                        <InputText id="productName" class="form-control" @bind-Value="updateProduct.Name" />
+                    </div>
                 </div>
-            </div>
 
-            <div class="mb-3 row">
-                <label for="productDescription" class="col-sm-3 col-form-label">Description:</label>
-                <div class="col-sm-9">
-                    <InputTextArea id="productDescription" class="form-control" @bind-Value="newProduct.Description" />
+                <div class="mb-3 row">
+                    <label for="productDescription" class="col-sm-3 col-form-label">Description:</label>
+                    <div class="col-sm-9">
+                        <InputTextArea id="productDescription" class="form-control" @bind-Value="updateProduct.Description" />
+                    </div>
                 </div>
-            </div>
 
-            <div class="mb-3 row">
-                <label for="productPrice" class="col-sm-3 col-form-label">Price:</label>
-                <div class="col-sm-9">
-                    <InputNumber id="productPrice" class="form-control" @bind-Value="newProduct.Price" />
+                <div class="mb-3 row">
+                    <label for="productPrice" class="col-sm-3 col-form-label">Price:</label>
+                    <div class="col-sm-9">
+                        <InputNumber id="productPrice" class="form-control" @bind-Value="updateProduct.Price" />
+                    </div>
                 </div>
-            </div>
+            }
+            else
+            {
 
+                <div class="mb-3 row">
+                    <label for="productName" class="col-sm-3 col-form-label">Name:</label>
+                    <div class="col-sm-9">
+                        <InputText id="productName" class="form-control" @bind-Value="newProduct.Name" />
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <label for="productDescription" class="col-sm-3 col-form-label">Description:</label>
+                    <div class="col-sm-9">
+                        <InputTextArea id="productDescription" class="form-control" @bind-Value="newProduct.Description" />
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <label for="productPrice" class="col-sm-3 col-form-label">Price:</label>
+                    <div class="col-sm-9">
+                        <InputNumber id="productPrice" class="form-control" @bind-Value="newProduct.Price" />
+                    </div>
+                </div>
+            }
             <div class="mt-4 d-flex justify-content-end gap-2">
                 <button type="submit" class="btn btn-primary">Save</button>
                 <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
@@ -78,7 +109,12 @@ else
 @code {
     private List<ProductDto>? products;
     private ProductCreateDto newProduct = new();
+    private ProductUpdateDto updateProduct = new();
+    private string? errorMessage;
+    private bool isEditMode = false;
     private bool isModalOpen;
+    private bool isSubmitting = false;
+    private int editingProductId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -95,11 +131,69 @@ else
 
     private async Task HandleCreate()
     {
-        var created = await ProductService.CreateProductAsync(newProduct);
-        if (created != null)
+        if (isEditMode)
         {
-            products?.Add(created);
+            await ProductService.UpdateProductAsync(editingProductId, updateProduct);
+            products = (await ProductService.GetProductsAsync()).ToList();
             CloseModal();
+        }
+        else
+        {
+            var created = await ProductService.CreateProductAsync(newProduct);
+            if (created != null)
+            {
+                products?.Add(created);
+                CloseModal();
+            }
+        }
+    }
+
+    private void EditProduct(ProductDto product)
+    {
+        isEditMode = true;
+        editingProductId = product.Id; // adjust to your actual ProductDto ID property
+        updateProduct = new ProductUpdateDto
+        {
+            Name = product.Name,
+            Description = product.Description,
+            Price = product.Price
+        };
+        isModalOpen = true;
+    }
+
+    private async Task ConfirmDeleteProduct(ProductDto product)
+    {
+        var confirm = await JS.InvokeAsync<bool>("confirm", $"Delete product {product.Name}?");
+        if (confirm)
+        {
+            await DeleteProduct(product);
+        }
+    }
+
+    private async Task DeleteProduct(ProductDto product)
+    {
+        isSubmitting = true;
+        try
+        {
+            var result = await ProductService.DeleteProductAsync(product.Id); // Implement this API
+            if (result)
+            {
+                products.Remove(product);
+            }
+            else
+            {
+                errorMessage = "Deletion failed.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error deleting product: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
         }
     }
 }
+
+
