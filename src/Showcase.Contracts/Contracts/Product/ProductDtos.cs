@@ -14,7 +14,14 @@
         public decimal Price { get; set; }
     }
 
-    public record ProductReadDto(int Id, string Name, string Description, decimal Price, DateTime CreatedAt);
+    public record ProductReadDto()
+    {
+        public int Id { get; init; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public decimal Price { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
 
     public class ProductDto()
     {

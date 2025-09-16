@@ -27,6 +27,8 @@ builder.Services.AddScoped<IAuthApiService, AuthApiService>();
 builder.Services.AddScoped<ApiAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
     sp.GetRequiredService<ApiAuthenticationStateProvider>());
+builder.Services.AddScoped<IRoleApiService, RoleApiService>();
+
 
 // --- Authorization system ---
 builder.Services.AddAuthorizationCore();

@@ -65,7 +65,14 @@ namespace Showcase.Infrastructure.Services
         }
 
         private static ProductReadDto MapToReadDto(Product product)
-            => new ProductReadDto(product.Id, product.Name, product.Description, product.Price, product.CreatedAt);
+            => new ProductReadDto
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                CreatedAt = product.CreatedAt
+            };
     }
 
 }

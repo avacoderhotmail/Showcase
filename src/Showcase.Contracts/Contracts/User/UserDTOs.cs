@@ -1,4 +1,6 @@
 ﻿// DTOs/UserDto.cs
+using System.ComponentModel.DataAnnotations;
+
 namespace Showcase.Contracts.Contracts.User
 {
     public class UserDto
@@ -16,7 +18,12 @@ namespace Showcase.Contracts.Contracts.User
     public class CreateUserDto
     {
         public string Email { get; set; } = string.Empty;
+
+        [DataType(DataType.Password)]
         public string Password { get; set; } = string.Empty;
+
+        [DataType(DataType.Password)]
+        public string ConfirmPassword { get; set; } = string.Empty;
         public string DisplayName { get; set; } = string.Empty;
         public IEnumerable<string> Roles { get; set; } = Array.Empty<string>();
     }

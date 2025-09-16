@@ -5,6 +5,8 @@
 @using Showcase.Client.Shared
 @inject IUserApiService UserApiService
 @inject NavigationManager Nav
+@inject IRoleApiService RoleApiService
+@inject IJSRuntime JS
 @attribute [Authorize]
 
 <h3>Users</h3>
@@ -26,6 +28,7 @@ else
                 <th>Email</th>
                 <th>Display Name</th>
                 <th>Roles</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -49,21 +52,114 @@ else
                             <em>No roles assigned</em>
                         }
                     </td>
-
+                    <td>
+                        <button type="button" class="btn btn-sm btn-warning" @onclick="() => EditUser(user)">Edit</button>
+                        <button type="button" class="btn btn-sm btn-danger" @onclick="() => ConfirmDeleteUser(user)">Delete</button>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
 }
 
-<ReusableModal />
+<ReusableModal Title="@(isEditMode ? "Edit User" : "Create User")" Show="@isModalOpen" ShowChanged="@(value => isModalOpen = value)">
+    <ChildContent>
+        <EditForm Model="@newUser" OnValidSubmit="HandleCreate">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            @if (isEditMode)
+            {
+                <div class="mb-3 row">
+                    <label for="displayName" class="col cold-form-label">Display Name:</label>
+                    <div class="col-sm-9">
+                        <InputText id="displayName" class="form-control" @bind-Value="updateUser.DisplayName" />
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label class="col-sm-3 col-form-label">Roles:</label>
+                    <div class="col-sm-9">
+                        @foreach (var role in availableRoles)
+                        {
+                            <div class="form-check">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       checked="@selectedRoles.Contains(role)"
+                                       @onchange="e => OnRoleChanged(role, (bool)e.Value!)" />
+                                <label class="form-check-label">@role</label>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+            }
+            else
+            {
+                <div class="mb-3 row">
+                    <label for="email" class="col-sm-3 col-form-label">Email:</label>
+                    <div class="col-sm-9">
+                        <InputText id="email" class="form-control" @bind-Value="newUser.Email" />
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <label for="displayName" class="col-sm-3 col-form-label">Display Name:</label>
+                    <div class="col-sm-9">
+                        <InputText id="displayName" class="form-control" @bind-Value="newUser.DisplayName" />
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <label for="password" class="col-sm-3 col-form-label">Password:</label>
+                    <div class="col-sm-9">
+                        <InputText id="password" type="password" class="form-control" @bind-Value="newUser.Password" />
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <label for="confirmPassword" class="col-sm-3 col-form-label">Confirm Password:</label>
+                    <div class="col-sm-9">
+                        <InputText id="confirmPassword" type="password" class="form-control" @bind-Value="newUser.ConfirmPassword" />
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <label class="col-sm-3 col-form-label">Roles:</label>
+                    <div class="col-sm-9">
+                        @foreach (var role in availableRoles)
+                        {
+                            <div class="form-check">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       checked="@selectedRoles.Contains(role)"
+                                       @onchange="e => OnRoleChanged(role, (bool)e.Value!)" />
+                                <label class="form-check-label">@role</label>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            <div class="mt-4 d-flex justify-content-end gap-2">
+                <button type="submit" disabled="@isSubmitting" class="btn btn-primary">Save</button>
+                <button type="button" class="btn btn-secondary" @onclick="CloseModal">Cancel</button>
+            </div>
+        </EditForm>
+    </ChildContent>
+</ReusableModal>
 
 @code {
     private List<UserDto> users = new();
     private bool loading = true;
     private string? errorMessage;
     private CreateUserDto newUser = new();
+    private UpdateUserDto updateUser = new();
     private bool isModalOpen = false;
+    private bool isEditMode = false;
+    private string? editingUserId = null;
+    private List<string> availableRoles = new() { "Admin", "User" };
+    private HashSet<string> selectedRoles = new();
+    private UserDto? userToDelete;
+
 
     private void ShowModal()
     {
@@ -76,6 +172,7 @@ else
         try
         {
             users = (await UserApiService.GetUsersAsync()).ToList();
+            availableRoles = (await RoleApiService.GetRolesAsync()).ToList();
         }
         catch (Exception ex)
         {
@@ -84,6 +181,123 @@ else
         finally
         {
             loading = false;
+        }
+    }
+
+    private void CloseModal() => isModalOpen = false;
+
+    private bool isSubmitting = false;
+
+    private async Task HandleCreate()
+    {
+        isSubmitting = true;
+        try
+        {
+            if (isEditMode)
+            {
+                newUser.Roles = selectedRoles.ToList();
+                var updated = await UserApiService.UpdateUserAsync(editingUserId, updateUser); // Implement this API method
+                if (updated != null)
+                {
+                    var oldUser = users.FirstOrDefault(u => u.Id == editingUserId);
+                    if (oldUser != null)
+                    {
+                        oldUser.Email = updated.Email;
+                        oldUser.DisplayName = updated.DisplayName;
+                        oldUser.Roles = updated.Roles;
+                    }
+                    CloseModal();
+                }
+                else
+                {
+                    errorMessage = "User update failed.";
+                }
+            }
+            else
+            {
+                var created = await UserApiService.CreateUserAsync(newUser);
+                if (created != null)
+                {
+                    users?.Add(created);
+                    CloseModal();
+                }
+                else
+                {
+                    errorMessage = "User creation failed.";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = isEditMode
+              ? $"Error updating user: {ex.Message}"
+              : $"Error creating user: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+            isEditMode = false;
+            editingUserId = null;
+        }
+    }
+
+    private void OnRoleChanged(string role, bool isSelected)
+    {
+        if (isSelected)
+            selectedRoles.Add(role);
+        else
+            selectedRoles.Remove(role);
+
+        if(isEditMode)
+            updateUser.Roles = selectedRoles.ToList();
+        else
+            newUser.Roles = selectedRoles.ToList();
+    }
+
+    private void EditUser(UserDto user)
+    {
+        isEditMode = true;
+        editingUserId = user.Id; // adjust to your actual UserDto ID property
+        updateUser = new UpdateUserDto
+        {
+            DisplayName = user.DisplayName,
+            Roles = new List<string>(user.Roles)
+        };
+        selectedRoles = new HashSet<string>(user.Roles);
+        isModalOpen = true;
+    }
+
+    private async Task ConfirmDeleteUser(UserDto user)
+    {
+        var confirm = await JS.InvokeAsync<bool>("confirm", $"Delete user {user.DisplayName}?");
+        if (confirm)
+        {
+            await DeleteUser(user);
+        }
+    }
+
+    private async Task DeleteUser(UserDto user)
+    {
+        isSubmitting = true;
+        try
+        {
+            var result = await UserApiService.DeleteUserAsync(user.Id); // Implement this API
+            if (result)
+            {
+                users.Remove(user);
+            }
+            else
+            {
+                errorMessage = "Deletion failed.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error deleting user: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
         }
     }
 }
