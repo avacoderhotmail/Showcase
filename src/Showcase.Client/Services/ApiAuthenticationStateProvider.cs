@@ -20,7 +20,12 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
 
         var claims = JwtParser.ParseClaimsFromJwt(token);
-        var identity = new ClaimsIdentity(claims, "jwt");
+        var identity = new ClaimsIdentity(
+            claims,
+            "jwt",
+            ClaimTypes.Name,
+            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role");
+
         var user = new ClaimsPrincipal(identity);
 
         return new AuthenticationState(user);
@@ -29,7 +34,12 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
     public void NotifyUserAuthentication(string token)
     {
         var claims = JwtParser.ParseClaimsFromJwt(token);
-        var identity = new ClaimsIdentity(claims, "jwt");
+        var identity = new ClaimsIdentity(
+            claims,
+            "jwt",
+            ClaimTypes.Name,
+            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role");
+
         var user = new ClaimsPrincipal(identity);
 
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));

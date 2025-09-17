@@ -1,0 +1,55 @@
+﻿@page "/roles"
+@using Showcase.Client.Services
+@inject IRoleApiService RoleService
+
+<h3>Roles</h3>
+
+@if (roles == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ul>
+        @foreach (var role in roles)
+        {
+            <li>@role</li>
+        }
+    </ul>
+}
+
+<h4>Create New Role</h4>
+<input @bind="newRoleName" placeholder="Role name" />
+<button @onclick="CreateRole">Create</button>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <p>@message</p>
+}
+
+@code {
+    private IEnumerable<string>? roles;
+    private string newRoleName = string.Empty;
+    private string? message;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadRoles();
+    }
+
+    private async Task LoadRoles()
+    {
+        roles = await RoleService.GetRolesAsync();
+    }
+
+    private async Task CreateRole()
+    {
+        if (!string.IsNullOrWhiteSpace(newRoleName))
+        {
+            var success = await RoleService.CreateRoleAsync(newRoleName);
+            message = success ? $"Role '{newRoleName}' created." : "Failed to create role.";
+            newRoleName = string.Empty;
+            await LoadRoles();
+        }
+    }
+}

@@ -10,7 +10,6 @@
 @attribute [Authorize]
 
 <h3>Users</h3>
-<button @onclick="ShowModal">+ New User</button>
 
 @if (loading)
 {
@@ -22,6 +21,7 @@ else if (errorMessage != null)
 }
 else
 {
+    <button @onclick="ShowModal">+ New User</button>
     <table class="table">
         <thead>
             <tr>

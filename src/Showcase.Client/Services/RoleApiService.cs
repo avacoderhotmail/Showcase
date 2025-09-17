@@ -14,4 +14,10 @@ public class RoleApiService : IRoleApiService
         return await _http.GetFromJsonAsync<IEnumerable<string>>("api/roles")
                ?? Enumerable.Empty<string>();
     }
+
+    public async Task<bool> CreateRoleAsync(string roleName)
+    {
+        var response = await _http.PostAsJsonAsync("api/roles", roleName);
+        return response.IsSuccessStatusCode;
+    }
 }

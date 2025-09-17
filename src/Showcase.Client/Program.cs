@@ -27,7 +27,6 @@ builder.Services.AddScoped<IAuthApiService, AuthApiService>();
 builder.Services.AddScoped<ApiAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
     sp.GetRequiredService<ApiAuthenticationStateProvider>());
-builder.Services.AddScoped<IRoleApiService, RoleApiService>();
 
 
 // --- Authorization system ---
@@ -35,6 +34,13 @@ builder.Services.AddAuthorizationCore();
 
 // --- Register AuthorizationMessageHandler ---
 builder.Services.AddTransient<AuthorizationMessageHandler>();
+
+builder.Services.AddHttpClient<IRoleApiService, RoleApiService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+})
+.AddHttpMessageHandler(sp => new AuthorizationMessageHandler(
+    sp.GetRequiredService<IAuthApiService>()));
 
 // --- Typed HttpClients (use AuthorizationMessageHandler for JWT) ---
 builder.Services.AddHttpClient<IUserApiService, UserApiService>(client =>

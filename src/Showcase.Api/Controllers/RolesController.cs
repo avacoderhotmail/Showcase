@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
-//[Authorize(Roles = "Admin")] // only admins should list roles
+[Authorize(Roles = "Admin")] // only admins should list roles
 public class RolesController : ControllerBase
 {
     private readonly RoleManager<IdentityRole> _roleManager;
@@ -12,6 +12,17 @@ public class RolesController : ControllerBase
     public RolesController(RoleManager<IdentityRole> roleManager)
     {
         _roleManager = roleManager;
+    }
+
+    [HttpGet("debug")]
+    [Authorize]
+    public IActionResult Debug()
+    {
+        return Ok(new
+        {
+            IsInRole_Admin = User.IsInRole("Admin"),
+            Claims = User.Claims.Select(c => new { c.Type, c.Value })
+        });
     }
 
     [HttpGet]
@@ -22,8 +33,7 @@ public class RolesController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")] // only admins should create roles]
-    public async Task<IActionResult> CreateRole(string roleName)
+    public async Task<IActionResult> CreateRole([FromBody] string roleName)
     {
         if (string.IsNullOrEmpty(roleName))
         {

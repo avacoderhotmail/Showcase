@@ -9,7 +9,6 @@
 
 <h3>Products</h3>
 
-<button @onclick="ShowModal">+ New Product</button>
 
 @if (products == null)
 {
@@ -17,6 +16,7 @@
 }
 else
 {
+    <button @onclick="ShowModal">+ New Product</button>
     <table class="table">
         <thead>
             <tr>
