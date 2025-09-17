@@ -8,8 +8,11 @@ public class AuthApiService : IAuthApiService
 {
     private readonly HttpClient _http;
     private readonly IJSRuntime _js;
-    private string? _inMemoryToken;
-    private const string TokenKey = "showcase_auth_token";
+    private string? _inMemoryAccessToken;
+    private string? _inMemoryRefreshToken;
+    private const string AccessTokenKey = "showcase_auth_token";
+    private const string RefreshTokenKey = "showcase_refresh_token";
+
 
     public AuthApiService(HttpClient http, IJSRuntime js)
     {
@@ -24,10 +27,10 @@ public class AuthApiService : IAuthApiService
 
         var payload = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
         var token = payload?.Token;
-        _inMemoryToken = token;
+        _inMemoryAccessToken = token;
+        _inMemoryRefreshToken = payload?.RefreshToken;
 
-        if (!string.IsNullOrEmpty(token))
-            await _js.InvokeVoidAsync("sessionStorage.setItem", TokenKey, token);
+        await SetTokensAsync(payload.Token, payload.RefreshToken);
 
         return payload;
     }
@@ -41,37 +44,50 @@ public class AuthApiService : IAuthApiService
 
     public async Task LogoutAsync()
     {
-        _inMemoryToken = null;
-        await _js.InvokeVoidAsync("sessionStorage.removeItem", TokenKey);
+        _inMemoryAccessToken = null;
+
+        await _js.InvokeVoidAsync("sessionStorage.removeItem", AccessTokenKey);
+        await _js.InvokeVoidAsync("sessionStorage.removeItem", RefreshTokenKey);
     }
 
     public async Task<string?> GetTokenAsync()
     {
         // prefer in-memory value for performance; fallback to localStorage
-        if (!string.IsNullOrWhiteSpace(_inMemoryToken))
-            return IsValid(_inMemoryToken) ? _inMemoryToken : null;
+        if (!string.IsNullOrWhiteSpace(_inMemoryAccessToken) && IsValid(_inMemoryAccessToken))
+            return IsValid(_inMemoryAccessToken) ? _inMemoryAccessToken : null;
 
         try
         {
-            _inMemoryToken = await _js.InvokeAsync<string?>("sessionStorage.getItem", TokenKey);
-            if(string.IsNullOrWhiteSpace(_inMemoryToken) || !IsValid(_inMemoryToken))
-                _inMemoryToken = null;
+            _inMemoryAccessToken = await _js.InvokeAsync<string?>("sessionStorage.getItem", AccessTokenKey);
+            _inMemoryRefreshToken ??= await _js.InvokeAsync<string?>("sessionStorage.getItem", RefreshTokenKey);
+
+            if (string.IsNullOrWhiteSpace(_inMemoryAccessToken) || !IsValid(_inMemoryAccessToken))
+                _inMemoryAccessToken = null;
         }
         catch
         {
-            _inMemoryToken = null;
+            _inMemoryAccessToken = null;
         }
 
-        return _inMemoryToken;
+        return _inMemoryAccessToken;
+    }
+
+    private async Task SetTokensAsync(string accessToken, string refreshToken)
+    {
+        _inMemoryAccessToken = accessToken;
+        _inMemoryRefreshToken = refreshToken;
+
+        await _js.InvokeVoidAsync("sessionStorage.setItem", AccessTokenKey, accessToken);
+        await _js.InvokeVoidAsync("sessionStorage.setItem", RefreshTokenKey, refreshToken);
     }
 
     public async Task SetTokenAsync(string? token)
     {
-        _inMemoryToken = token;
+        _inMemoryAccessToken = token;
         if (string.IsNullOrEmpty(token))
-            await _js.InvokeVoidAsync("sessionStorage.removeItem", TokenKey);
+            await _js.InvokeVoidAsync("sessionStorage.removeItem", AccessTokenKey);
         else
-            await _js.InvokeVoidAsync("sessionStorage.setItem", TokenKey, token);
+            await _js.InvokeVoidAsync("sessionStorage.setItem", AccessTokenKey, token);
     }
 
     private bool IsValid(string token)
@@ -83,4 +99,37 @@ public class AuthApiService : IAuthApiService
         var expDate = DateTimeOffset.FromUnixTimeSeconds(long.Parse(exp));
         return expDate > DateTimeOffset.UtcNow;
     }
+
+    public async Task<bool> RefreshTokenAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_inMemoryRefreshToken))
+            _inMemoryRefreshToken = await _js.InvokeAsync<string?>("sessionStorage.getItem", RefreshTokenKey);
+
+        if (string.IsNullOrWhiteSpace(_inMemoryRefreshToken))
+            return false;
+
+        var response = await _http.PostAsJsonAsync("api/auth/refresh", new RefreshRequestDto( _inMemoryRefreshToken ));
+        if (!response.IsSuccessStatusCode) return false;
+
+        var payload = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
+        if (payload?.Token == null || payload?.RefreshToken == null) return false;
+
+        await SetTokenAsync(payload.Token);
+        _inMemoryRefreshToken = payload.RefreshToken;
+        await _js.InvokeVoidAsync("sessionStorage.setItem", RefreshTokenKey, _inMemoryRefreshToken);
+        return true;
+    }
+
+    public static bool IsExpiringSoon(string? token, int bufferSeconds = 120)
+    {
+        if (string.IsNullOrWhiteSpace(token)) return true;
+
+        var claims = JwtParser.ParseClaimsFromJwt(token);
+        var exp = claims.FirstOrDefault(c => c.Type == "exp")?.Value;
+        if (exp == null) return true;
+
+        var expDate = DateTimeOffset.FromUnixTimeSeconds(long.Parse(exp));
+        return expDate <= DateTimeOffset.UtcNow.AddSeconds(bufferSeconds);
+    }
+
 }
