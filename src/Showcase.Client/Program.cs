@@ -35,6 +35,7 @@ builder.Services.AddAuthorizationCore();
 // --- Register AuthorizationMessageHandler ---
 builder.Services.AddTransient<AuthorizationMessageHandler>();
 
+// --- Typed HttpClients (use AuthorizationMessageHandler for JWT) ---
 builder.Services.AddHttpClient<IRoleApiService, RoleApiService>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
@@ -42,7 +43,6 @@ builder.Services.AddHttpClient<IRoleApiService, RoleApiService>(client =>
 .AddHttpMessageHandler(sp => new AuthorizationMessageHandler(
     sp.GetRequiredService<IAuthApiService>()));
 
-// --- Typed HttpClients (use AuthorizationMessageHandler for JWT) ---
 builder.Services.AddHttpClient<IUserApiService, UserApiService>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
