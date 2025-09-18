@@ -10,6 +10,7 @@ using Showcase.Application.Interfaces;
 using System.Text;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -90,6 +91,14 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+
+// Server uploaded filed from /uploads
+var uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "uploads");
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads"
+});
 
 // 7. Middleware
 if (app.Environment.IsDevelopment())

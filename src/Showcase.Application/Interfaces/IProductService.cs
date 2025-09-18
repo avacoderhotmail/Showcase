@@ -1,4 +1,5 @@
-﻿using Showcase.Contracts.Contracts.Product;
+﻿using Microsoft.AspNetCore.Http;
+using Showcase.Contracts.Contracts.Product;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,10 @@ namespace Showcase.Application.Interfaces
 {
     public interface IProductService
     {
-        Task<ProductReadDto> CreateAsync(ProductCreateDto dto);
+        Task<ProductReadDto> CreateAsync(ProductCreateDto dto, IFormFile? imageFile = null);
         Task<IEnumerable<ProductReadDto>> GetAllAsync();
         Task<ProductReadDto?> GetByIdAsync(int id);
-        Task<ProductReadDto?> UpdateAsync(int id, ProductUpdateDto dto);
+        Task<ProductReadDto?> UpdateAsync(int id, ProductUpdateDto dto, IFormFile? imageFile = null);
         Task<bool> DeleteAsync(int id);
     }
 

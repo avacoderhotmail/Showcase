@@ -12,15 +12,18 @@
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
+        string? ImageUrl { get; set; } // full URL to the image
     }
 
-    public record ProductReadDto()
+    public class ProductReadDto()
     {
         public int Id { get; init; }
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
         public DateTime CreatedAt { get; set; }
+        public string? ImageUrl { get; set; } // full URL to the image
+
     }
 
     public class ProductDto()
@@ -29,6 +32,7 @@
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
+        public string? ImageUrl { get; set; } // full URL to the image
     }
 
 }

@@ -30,17 +30,17 @@ public class ProductsController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Create(ProductCreateDto dto)
+    public async Task<IActionResult> Create([FromForm] ProductCreateDto dto, IFormFile? imageFile)
     {
-        var product = await _service.CreateAsync(dto);
+        var product = await _service.CreateAsync(dto, imageFile);
         return CreatedAtAction(nameof(GetById), new { id = product.Id }, product);
     }
 
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> Update(int id, ProductUpdateDto dto)
+    public async Task<IActionResult> Update(int id, [FromForm] ProductUpdateDto dto, IFormFile? imageFile)
     {
-        var product = await _service.UpdateAsync(id, dto);
+        var product = await _service.UpdateAsync(id, dto, imageFile);
         return product == null ? NotFound() : Ok(product);
     }
 

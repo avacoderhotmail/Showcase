@@ -25,6 +25,7 @@ else
     <table class="table">
         <thead>
             <tr>
+                <th>Image</th>
                 <th>Name</th>
                 <th>Description</th>
                 <th>Price</th>
@@ -39,6 +40,13 @@ else
             @foreach (var product in products)
             {
                 <tr>
+                    <td>
+                        @if (!string.IsNullOrEmpty(product.ImageUrl))
+                        {
+                            <img src="@product.ImageUrl" alt="@product.Name" style="max-width:100px; max-height:100px;" />
+                        }
+                    </td>
+
                     <td>
                         <a class="btn btn-link" href="@($"/products/{product.Id}")">@product.Name</a>
                     </td>
@@ -86,6 +94,16 @@ else
                         <InputNumber id="productPrice" class="form-control" @bind-Value="updateProduct.Price" />
                     </div>
                 </div>
+                <div class="mb-3 row">
+                    <label for="productImage" class="col-sm-3 col-form-label">Image:</label>
+                    <div class="col-sm-9">
+                        <InputFile OnChange="OnInputFileChange" />
+                        @if (!string.IsNullOrEmpty(previewImageUrl))
+                        {
+                            <img src="@previewImageUrl" alt="Preview" style="max-width:150px; max-height:150px; margin-top:10px;" />
+                        }
+                    </div>
+                </div>
             }
             else
             {
@@ -110,6 +128,16 @@ else
                         <InputNumber id="productPrice" class="form-control" @bind-Value="newProduct.Price" />
                     </div>
                 </div>
+                <div class="mb-3 row">
+                    <label for="productImage" class="col-sm-3 col-form-label">Image:</label>
+                    <div class="col-sm-9">
+                        <InputFile OnChange="OnInputFileChange" />
+                        @if (!string.IsNullOrEmpty(previewImageUrl))
+                        {
+                            <img src="@previewImageUrl" alt="Preview" style="max-width:150px; max-height:150px; margin-top:10px;" />
+                        }
+                    </div>
+                </div>
             }
             <div class="mt-4 d-flex justify-content-end gap-2">
                 <button type="submit" class="btn btn-primary">Save</button>
@@ -128,6 +156,8 @@ else
     private bool isModalOpen;
     private bool isSubmitting = false;
     private int editingProductId;
+    private IBrowserFile? selectedImageFile;
+    private string? previewImageUrl;
 
     protected override async Task OnInitializedAsync()
     {
@@ -136,7 +166,12 @@ else
 
     private void ShowModal()
     {
+        isEditMode = false;
+        editingProductId = 0;
         newProduct = new ProductCreateDto();
+        updateProduct = new ProductUpdateDto();
+        selectedImageFile = null;
+        previewImageUrl = null;
         isModalOpen = true;
     }
 
@@ -146,19 +181,22 @@ else
     {
         if (isEditMode)
         {
-            await ProductService.UpdateProductAsync(editingProductId, updateProduct);
+            await ProductService.UpdateProductAsync(editingProductId, updateProduct, selectedImageFile);
             products = (await ProductService.GetProductsAsync()).ToList();
             CloseModal();
         }
         else
         {
-            var created = await ProductService.CreateProductAsync(newProduct);
+            var created = await ProductService.CreateProductAsync(newProduct, selectedImageFile);
             if (created != null)
             {
                 products?.Add(created);
                 CloseModal();
             }
         }
+
+        selectedImageFile = null;
+        previewImageUrl = null;
     }
 
     private void EditProduct(ProductDto product)
@@ -207,6 +245,15 @@ else
             isSubmitting = false;
         }
     }
-}
 
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        selectedImageFile = e.File;
+        long maxPreviewSize = 2 * 1024 * 1024;
+        using var stream = selectedImageFile.OpenReadStream(maxPreviewSize);
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        previewImageUrl = $"data:{selectedImageFile.ContentType};base64,{Convert.ToBase64String(ms.ToArray())}";
+    }
+}
 
