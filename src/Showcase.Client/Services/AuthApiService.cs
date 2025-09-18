@@ -34,13 +34,6 @@ public class AuthApiService : IAuthApiService
         return payload;
     }
 
-    public async Task<RegisterResponseDto?> RegisterAsync(RegisterRequestDto dto)
-    {
-        var response = await _http.PostAsJsonAsync("api/auth/register", dto);
-        if (!response.IsSuccessStatusCode) return null;
-        return await response.Content.ReadFromJsonAsync<RegisterResponseDto>();
-    }
-
     public async Task LogoutAsync()
     {
         _inMemoryAccessToken = null;
