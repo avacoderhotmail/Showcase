@@ -26,9 +26,8 @@ public class AuthApiService : IAuthApiService
         if (!response.IsSuccessStatusCode) return null;
 
         var payload = await response.Content.ReadFromJsonAsync<LoginResponseDto>();
-        var token = payload?.Token;
-        _inMemoryAccessToken = token;
-        _inMemoryRefreshToken = payload?.RefreshToken;
+        if (payload == null || string.IsNullOrWhiteSpace(payload.Token) || string.IsNullOrWhiteSpace(payload.RefreshToken))
+            return null;
 
         await SetTokensAsync(payload.Token, payload.RefreshToken);
 
@@ -45,6 +44,7 @@ public class AuthApiService : IAuthApiService
     public async Task LogoutAsync()
     {
         _inMemoryAccessToken = null;
+        _inMemoryRefreshToken = null;
 
         await _js.InvokeVoidAsync("sessionStorage.removeItem", AccessTokenKey);
         await _js.InvokeVoidAsync("sessionStorage.removeItem", RefreshTokenKey);
@@ -112,11 +112,11 @@ public class AuthApiService : IAuthApiService
         if (!response.IsSuccessStatusCode) return false;
 
         var payload = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
-        if (payload?.Token == null || payload?.RefreshToken == null) return false;
+        if(payload == null || string.IsNullOrWhiteSpace(payload.Token) || string.IsNullOrWhiteSpace(payload.RefreshToken))
+            return false;
 
-        await SetTokenAsync(payload.Token);
-        _inMemoryRefreshToken = payload.RefreshToken;
-        await _js.InvokeVoidAsync("sessionStorage.setItem", RefreshTokenKey, _inMemoryRefreshToken);
+        await SetTokensAsync(payload.Token, payload.RefreshToken);
+
         return true;
     }
 
