@@ -1,4 +1,5 @@
 ﻿@page "/products"
+@using Microsoft.AspNetCore.Components.Authorization
 @using Showcase.Client.Shared
 @using Microsoft.AspNetCore.Authorization
 @using Showcase.Client.Services
@@ -16,14 +17,22 @@
 }
 else
 {
-    <button @onclick="ShowModal">+ New Product</button>
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            <button @onclick="ShowModal" class="btn btn-sm btn-primary">+ New Product</button>
+        </Authorized>
+    </AuthorizeView>
     <table class="table">
         <thead>
             <tr>
                 <th>Name</th>
                 <th>Description</th>
                 <th>Price</th>
-                <th>Actions</th>
+                <AuthorizeView Roles="Admin">
+                    <Authorized>
+                        <th>Actions</th>
+                    </Authorized>
+                </AuthorizeView>
             </tr>
         </thead>
         <tbody>
@@ -36,8 +45,12 @@ else
                     <td>@product.Description</td>
                     <td>@product.Price.ToString("C")</td>
                     <td>
-                        <button type="button" class="btn btn-sm btn-warning" @onclick="() => EditProduct(product)">Edit</button>
-                        <button type="button" class="btn btn-sm btn-danger" @onclick="() => ConfirmDeleteProduct(product)">Delete</button>
+                        <AuthorizeView Roles="Admin">
+                            <Authorized>
+                                <button type="button" class="btn btn-sm btn-warning" @onclick="() => EditProduct(product)">Edit</button>
+                                <button type="button" class="btn btn-sm btn-danger" @onclick="() => ConfirmDeleteProduct(product)">Delete</button>
+                            </Authorized>
+                        </AuthorizeView>
                     </td>
                 </tr>
             }
@@ -178,7 +191,7 @@ else
             var result = await ProductService.DeleteProductAsync(product.Id); // Implement this API
             if (result)
             {
-                products.Remove(product);
+                products?.Remove(product);
             }
             else
             {

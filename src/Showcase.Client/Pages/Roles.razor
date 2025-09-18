@@ -1,6 +1,8 @@
 ﻿@page "/roles"
+@using Microsoft.AspNetCore.Authorization
 @using Showcase.Client.Services
 @inject IRoleApiService RoleService
+@attribute [Authorize(Roles = "Admin, UserManager")]
 
 <h3>Roles</h3>
 
@@ -20,7 +22,7 @@ else
 
 <h4>Create New Role</h4>
 <input @bind="newRoleName" placeholder="Role name" />
-<button @onclick="CreateRole">Create</button>
+<button @onclick="CreateRole" class="btn btn-sm btn-primary">Create</button>
 
 @if (!string.IsNullOrEmpty(message))
 {

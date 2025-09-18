@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin")] // only admins should list roles
+[Authorize(Roles = "Admin, UserManager")] // only admins and user managers should list/add roles
 public class RolesController : ControllerBase
 {
     private readonly RoleManager<IdentityRole> _roleManager;
@@ -14,16 +14,6 @@ public class RolesController : ControllerBase
         _roleManager = roleManager;
     }
 
-    [HttpGet("debug")]
-    [Authorize]
-    public IActionResult Debug()
-    {
-        return Ok(new
-        {
-            IsInRole_Admin = User.IsInRole("Admin"),
-            Claims = User.Claims.Select(c => new { c.Type, c.Value })
-        });
-    }
 
     [HttpGet]
     public IActionResult GetAll()

@@ -7,7 +7,7 @@ namespace Showcase.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin, UserManager")]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;

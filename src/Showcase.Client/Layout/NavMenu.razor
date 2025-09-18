@@ -19,7 +19,7 @@
                     <li>
                         <NavLink href="/products">Products</NavLink>
                     </li>
-                    <AuthorizeView Roles="Admin" Context="newContext">
+                    <AuthorizeView Roles="Admin, UserManager" Context="newContext">
                         <li>
                             <NavLink href="/users">Users</NavLink>
                         </li>

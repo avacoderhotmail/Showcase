@@ -7,7 +7,7 @@
 @inject NavigationManager Nav
 @inject IRoleApiService RoleApiService
 @inject IJSRuntime JS
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, UserManager")]
 
 <h3>Users</h3>
 
@@ -21,7 +21,7 @@ else if (errorMessage != null)
 }
 else
 {
-    <button @onclick="ShowModal">+ New User</button>
+    <button @onclick="ShowModal" class="btn btn-sm btn-primary">+ New User</button>
     <table class="table">
         <thead>
             <tr>
