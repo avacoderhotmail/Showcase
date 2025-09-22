@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Showcase.Application.Interfaces;
 using Showcase.Contracts.Contracts.Product;
 using Showcase.Infrastructure.Data;
+using Showcase.Domain.Entities;
 
 namespace Showcase.Infrastructure.Services
 {
