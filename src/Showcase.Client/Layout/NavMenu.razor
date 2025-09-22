@@ -14,9 +14,6 @@
             <AuthorizeView>
                 <Authorized>
                     <li>
-                        <a href="#" @onclick="Logout">Logout</a>
-                    </li>
-                    <li>
                         <NavLink href="/products">Products</NavLink>
                     </li>
                     <AuthorizeView Roles="Admin, UserManager" Context="newContext">
@@ -29,9 +26,6 @@
                     </AuthorizeView>
                 </Authorized>
                 <NotAuthorized>
-                    <li>
-                        <NavLink href="/login">Login</NavLink>
-                    </li>
                 </NotAuthorized>
 
             </AuthorizeView>

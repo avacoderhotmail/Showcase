@@ -17,7 +17,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,User,Manager")]
+    [Authorize(Roles = "Admin,User")]
     public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
 
     [HttpGet("{id}")]
@@ -29,7 +29,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,ProductManager")]
     public async Task<IActionResult> Create([FromForm] ProductCreateDto dto, IFormFile? imageFile)
     {
         var product = await _service.CreateAsync(dto, imageFile);
@@ -37,7 +37,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin, ProductManager")]
     public async Task<IActionResult> Update(int id, [FromForm] ProductUpdateDto dto, IFormFile? imageFile)
     {
         var product = await _service.UpdateAsync(id, dto, imageFile);
@@ -45,7 +45,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin, ProductManager")]
     public async Task<IActionResult> Delete(int id)
     {
         var success = await _service.DeleteAsync(id);

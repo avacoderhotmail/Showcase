@@ -17,7 +17,7 @@
 }
 else
 {
-    <AuthorizeView Roles="Admin">
+    <AuthorizeView Roles="Admin, ProductManager">
         <Authorized>
             <button @onclick="ShowModal" class="btn btn-sm btn-primary">+ New Product</button>
         </Authorized>
@@ -29,7 +29,7 @@ else
                 <th>Name</th>
                 <th>Description</th>
                 <th>Price</th>
-                <AuthorizeView Roles="Admin">
+                <AuthorizeView Roles="Admin, ProductManager">
                     <Authorized>
                         <th>Actions</th>
                     </Authorized>
@@ -53,7 +53,7 @@ else
                     <td>@product.Description</td>
                     <td>@product.Price.ToString("C")</td>
                     <td>
-                        <AuthorizeView Roles="Admin">
+                        <AuthorizeView Roles="Admin, ProductManager">
                             <Authorized>
                                 <button type="button" class="btn btn-sm btn-warning" @onclick="() => EditProduct(product)">Edit</button>
                                 <button type="button" class="btn btn-sm btn-danger" @onclick="() => ConfirmDeleteProduct(product)">Delete</button>

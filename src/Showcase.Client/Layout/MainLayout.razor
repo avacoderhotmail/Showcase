@@ -1,4 +1,10 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
+@using Showcase.Client.Services
+@inject ApiAuthenticationStateProvider AuthStateProvider
+@inject IAuthApiService AuthApiService
+@inject NavigationManager Navigation
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -6,7 +12,14 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <AuthorizeView>
+                <NotAuthorized>
+                    <NavLink href="/login">Login</NavLink>
+                </NotAuthorized>
+                <Authorized>
+                    <a href="#" @onclick="Logout">Logout</a>
+                </Authorized>
+            </AuthorizeView>
         </div>
 
         <article class="content px-4">
@@ -14,3 +27,16 @@
         </article>
     </main>
 </div>
+
+@code {
+    private async Task Logout()
+    {
+        var token = await AuthApiService.GetTokenAsync();
+        if (!string.IsNullOrEmpty(token))
+        {
+            await AuthApiService.LogoutAsync();
+        }
+        AuthStateProvider.NotifyUserLogout();
+        Navigation.NavigateTo("/");
+    }
+}
