@@ -89,7 +89,7 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader());
 });
 
-builder.Services.AddSingleton<BlobService>(sp =>
+builder.Services.AddSingleton<IBlobService>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
     return new BlobService(configuration);
