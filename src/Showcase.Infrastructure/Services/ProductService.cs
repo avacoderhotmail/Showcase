@@ -14,12 +14,14 @@ namespace Showcase.Infrastructure.Services
         private readonly AppDbContext _db;
         private readonly IWebHostEnvironment _env;
         private readonly string _baseUrl;
+        private readonly IBlobService _blobService;
 
-        public ProductService(AppDbContext db, IWebHostEnvironment env, IConfiguration config)
+        public ProductService(AppDbContext db, IWebHostEnvironment env, IConfiguration config, IBlobService blobService)
         {
             _db = db;
             _env = env;
             _baseUrl = config["AppBaseUrl"] ?? "https://localhost:8000";
+            _blobService = blobService;
         }
 
         public async Task<ProductReadDto> CreateAsync(ProductCreateDto dto, IFormFile? imageFile = null)
@@ -34,16 +36,15 @@ namespace Showcase.Infrastructure.Services
             // Handle image upload
             if (imageFile != null)
             {
-                var imagesFolder = Path.Combine(_env.ContentRootPath, "uploads");
-                Directory.CreateDirectory(imagesFolder);
-
+                // Generate a unique file name
                 var fileName = $"{Guid.NewGuid()}{Path.GetExtension(imageFile.FileName)}";
-                var filePath = Path.Combine(imagesFolder, fileName);
 
-                using var stream = System.IO.File.Create(filePath);
-                await imageFile.CopyToAsync(stream);
+                // Upload to Azure Blob Storage
+                using var stream = imageFile.OpenReadStream();
+                var fileUrl = await _blobService.UploadFileAsync(stream, fileName);
 
-                product.ImageFileName = fileName;
+                // Option 1: store the blob URL in the database
+                product.ImageFileName = fileUrl;
             }
 
             _db.Products.Add(product);
@@ -78,24 +79,19 @@ namespace Showcase.Infrastructure.Services
             // Handle image update
             if (imageFile != null && imageFile.Length > 0)
             {
-                var imagesFolder = Path.Combine(_env.ContentRootPath, "uploads");
-                Directory.CreateDirectory(imagesFolder);
-
-                // Delete old image if exists
+                // Delete old image from Blob Storage if exists
                 if (!string.IsNullOrEmpty(product.ImageFileName))
                 {
-                    var oldImagePath = Path.Combine(imagesFolder, product.ImageFileName);
-                    if (File.Exists(oldImagePath))
-                        File.Delete(oldImagePath);
+                    var oldFileName = Path.GetFileName(new Uri(product.ImageFileName).AbsolutePath);
+                    await _blobService.DeleteFileAsync(oldFileName);
                 }
 
+                // Upload new image to Blob Storage
                 var fileName = $"{Guid.NewGuid()}{Path.GetExtension(imageFile.FileName)}";
-                var filePath = Path.Combine(imagesFolder, fileName);
+                using var stream = imageFile.OpenReadStream();
+                var fileUrl = await _blobService.UploadFileAsync(stream, fileName);
 
-                using var stream = System.IO.File.Create(filePath);
-                await imageFile.CopyToAsync(stream);
-
-                product.ImageFileName = fileName;
+                product.ImageFileName = fileUrl; // store the URL directly
             }
 
             await _db.SaveChangesAsync();
@@ -107,13 +103,10 @@ namespace Showcase.Infrastructure.Services
             var product = await _db.Products.FindAsync(id);
             if (product == null) return false;
 
-            // Delete image from filesystem
             if (!string.IsNullOrEmpty(product.ImageFileName))
             {
-                var imagesFolder = Path.Combine(_env.ContentRootPath, "uploads");
-                var imagePath = Path.Combine(imagesFolder, product.ImageFileName);
-                if (File.Exists(imagePath))
-                    File.Delete(imagePath);
+                var oldFileName = Path.GetFileName(new Uri(product.ImageFileName).AbsolutePath);
+                await _blobService.DeleteFileAsync(oldFileName);
             }
 
             _db.Products.Remove(product);
@@ -123,8 +116,9 @@ namespace Showcase.Infrastructure.Services
 
         private static ProductReadDto MapToReadDto(Product product, string baseUrl)
         {
-            var imageUrl = string.IsNullOrEmpty(product.ImageFileName) ? null
-                : $"{baseUrl}/uploads/{product.ImageFileName}"; // relative URL for Blazor client
+            var imageUrl = string.IsNullOrEmpty(product.ImageFileName)
+                ? null
+                : product.ImageFileName; // full blob URL from Azure
 
             return new ProductReadDto
             {

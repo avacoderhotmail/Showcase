@@ -26,22 +26,27 @@ public class ProductApiService : IProductApiService
 
     public async Task<ProductDto?> CreateProductAsync(ProductCreateDto dto, IBrowserFile? imageFile)
     {
-        var content = new MultipartFormDataContent();
+        var content = new MultipartFormDataContent
+    {
+        { new StringContent(dto.Name ?? ""), nameof(dto.Name) },
+        { new StringContent(dto.Description ?? ""), nameof(dto.Description) },
+        { new StringContent(dto.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)), nameof(dto.Price) }
+    };
 
-        // add dto properties
-        content.Add(new StringContent(dto.Name ?? ""), "Name");
-        content.Add(new StringContent(dto.Description ?? ""), "Description");
-        content.Add(new StringContent(dto.Price.ToString(System.Globalization.CultureInfo.InvariantCulture)), "Price");
-
-        // Add image file if provided
         if (imageFile != null)
         {
-            var stream = imageFile.OpenReadStream(5 * 1024 * 1024); // Limit to 5 MB
-            content.Add(new StreamContent(stream), "imageFile", imageFile.Name);
+            var stream = imageFile.OpenReadStream(5 * 1024 * 1024); // don't dispose early
+            var fileContent = new StreamContent(stream);
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(imageFile.ContentType);
+            content.Add(fileContent, "imageFile", imageFile.Name);
         }
 
-        var response = await _http.PostAsJsonAsync("api/products", content);
-        if(!response.IsSuccessStatusCode)
+        var response = await _http.PostAsync("api/products", content);
+
+        var body = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"Response: {response.StatusCode} - {body}");
+
+        if (!response.IsSuccessStatusCode)
         {
             return null;
         }
@@ -62,7 +67,7 @@ public class ProductApiService : IProductApiService
         }
 
         var response = await _http.PutAsync($"api/products/{id}", content);
-        if(!response.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
             return null;
         }

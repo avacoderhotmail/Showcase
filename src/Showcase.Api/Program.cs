@@ -1,16 +1,16 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Showcase.Application.Interfaces;
 using Showcase.Domain.Entities;
 using Showcase.Infrastructure.Data;
 using Showcase.Infrastructure.Services;
-using Showcase.Application.Interfaces;
-using System.Text;
-using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.Extensions.FileProviders;
+using System.Security.Claims;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,6 +89,11 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader());
 });
 
+builder.Services.AddSingleton<BlobService>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    return new BlobService(configuration);
+});
 
 var app = builder.Build();
 

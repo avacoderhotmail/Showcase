@@ -30,15 +30,21 @@ namespace Showcase.Tests.Unit
                 .Options;
         }
 
-        private ProductService CreateService(string rootPath, DbContextOptions<AppDbContext> options)
+        private ProductService CreateService(DbContextOptions<AppDbContext> options)
         {
             var env = new Mock<IWebHostEnvironment>();
-            env.Setup(e => e.WebRootPath).Returns(rootPath);
+            env.Setup(e => e.WebRootPath).Returns(Path.GetTempPath());
 
             var config = new ConfigurationBuilder().Build();
 
+            var blobMock = new Mock<IBlobService>();
+            blobMock.Setup(b => b.UploadFileAsync(It.IsAny<Stream>(), It.IsAny<string>()))
+                .ReturnsAsync("https://fake.blob.core.windows.net/container/fakefile.png");
+            blobMock.Setup(b => b.DeleteFileAsync(It.IsAny<string>()))
+                .Returns(Task.CompletedTask);
+
             var db = new AppDbContext(options);
-            return new ProductService(db, env.Object, config);
+            return new ProductService(db, env.Object, config, blobMock.Object);
         }
 
         [Fact]
@@ -49,7 +55,7 @@ namespace Showcase.Tests.Unit
             Directory.CreateDirectory(tempPath);
 
             var options = CreateOptions();
-            var service = CreateService(tempPath, options);
+            var service = CreateService( options);
 
             var dto = new ProductCreateDto
             {
@@ -93,7 +99,7 @@ namespace Showcase.Tests.Unit
                 await db.SaveChangesAsync();
             }
 
-            var service = CreateService(Path.GetTempPath(), options);
+            var service = CreateService( options);
 
             var updateDto = new ProductUpdateDto
             {
@@ -130,7 +136,7 @@ namespace Showcase.Tests.Unit
                 await db.SaveChangesAsync();
             }
 
-            var service = CreateService(Path.GetTempPath(), options);
+            var service = CreateService( options);
 
             // Act
             var result = await service.DeleteAsync(1);

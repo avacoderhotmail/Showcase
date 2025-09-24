@@ -8,8 +8,11 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Showcase.Api;
 using Showcase.Infrastructure.Data;
+using Showcase.Infrastructure.Services;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using Moq;
 
 namespace Showcase.IntegrationTests
 {
@@ -22,11 +25,6 @@ namespace Showcase.IntegrationTests
             {
                 // Replace IWebHostEnvironment with a test one
                 services.RemoveAll(typeof(IWebHostEnvironment));
-                //var envDescriptor = services.SingleOrDefault(
-                //    d => d.ServiceType == typeof(IWebHostEnvironment));
-
-                //if (envDescriptor != null)
-                //    services.Remove(envDescriptor);
 
                 var tempPath = Path.Combine(Path.GetTempPath(), "ShowcaseTestImages");
                 
@@ -64,6 +62,21 @@ namespace Showcase.IntegrationTests
                     options.DefaultChallengeScheme = "Test";
                 })
 .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", options => { });
+
+                // Remove any existing IBlobService registration
+                var blobDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IBlobService));
+                if (blobDescriptor != null)
+                    services.Remove(blobDescriptor);
+
+                // Add a mock IBlobService
+                var blobMock = new Mock<IBlobService>();
+                blobMock.Setup(b => b.UploadFileAsync(It.IsAny<Stream>(), It.IsAny<string>()))
+                        .ReturnsAsync("https://fake.blob.core.windows.net/uploads/fake.jpg");
+                blobMock.Setup(b => b.DeleteFileAsync(It.IsAny<string>()))
+                        .Returns(Task.CompletedTask);
+
+                services.AddScoped(_ => blobMock.Object);
+
             });
         }
     }

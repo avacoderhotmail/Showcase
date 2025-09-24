@@ -97,7 +97,7 @@ else
                 <div class="mb-3 row">
                     <label for="productImage" class="col-sm-3 col-form-label">Image:</label>
                     <div class="col-sm-9">
-                        <InputFile OnChange="OnInputFileChange" />
+                        <InputFile OnChange="OnInputFileChange" id="productImage" />
                         @if (!string.IsNullOrEmpty(previewImageUrl))
                         {
                             <img src="@previewImageUrl" alt="Preview" style="max-width:150px; max-height:150px; margin-top:10px;" />
@@ -131,7 +131,7 @@ else
                 <div class="mb-3 row">
                     <label for="productImage" class="col-sm-3 col-form-label">Image:</label>
                     <div class="col-sm-9">
-                        <InputFile OnChange="OnInputFileChange" />
+                        <InputFile OnChange="OnInputFileChange" id="productImage"/>
                         @if (!string.IsNullOrEmpty(previewImageUrl))
                         {
                             <img src="@previewImageUrl" alt="Preview" style="max-width:150px; max-height:150px; margin-top:10px;" />
