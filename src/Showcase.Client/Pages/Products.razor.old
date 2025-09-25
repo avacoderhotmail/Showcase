@@ -15,10 +15,6 @@
 {
     <p>Loading...</p>
 }
-else if (products.Count == 0)
-{
-    <p>No products available.</p>
-}
 else
 {
     <AuthorizeView Roles="Admin, ProductManager">
@@ -26,32 +22,48 @@ else
             <button @onclick="ShowModal" class="btn btn-sm btn-primary">+ New Product</button>
         </Authorized>
     </AuthorizeView>
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        @foreach (var product in products)
-        {
-            <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name" style="height: 180px; object-fit: scale-down;" />
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title">
-                            <a href="/products/@product.Id">@product.Name</a>
-                        </h5>
-                        <p class="card-text text-muted">@product.Description</p>
-                        <div class="mt-auto">
-                            <p class="fw-bold">$@product.Price</p>
-                            <a class="btn btn-sm btn-primary me-2" href="/products/@product.Id">View</a>
-                            <AuthorizeView Roles="Admin, ProductManager">
-                                <Authorized>
-                                    <a class="btn btn-sm btn-warning me-2" href="/products/edit/@product.Id">Edit</a>
-                                    <button class="btn btn-sm btn-danger" @onclick="() => ConfirmDeleteProduct(product)" disabled="@isSubmitting">Delete</button>
-                                </Authorized>
-                            </AuthorizeView>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <AuthorizeView Roles="Admin, ProductManager">
+                    <Authorized>
+                        <th>Actions</th>
+                    </Authorized>
+                </AuthorizeView>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in products)
+            {
+                <tr>
+                    <td>
+                        @if (!string.IsNullOrEmpty(product.ImageUrl))
+                        {
+                            <img src="@product.ImageUrl" alt="@product.Name" style="max-width:100px; max-height:100px;" />
+                        }
+                    </td>
+
+                    <td>
+                        <a class="btn btn-link" href="@($"/products/{product.Id}")">@product.Name</a>
+                    </td>
+                    <td>@product.Description</td>
+                    <td>@product.Price.ToString("C")</td>
+                    <td>
+                        <AuthorizeView Roles="Admin, ProductManager">
+                            <Authorized>
+                                <button type="button" class="btn btn-sm btn-warning" @onclick="() => EditProduct(product)">Edit</button>
+                                <button type="button" class="btn btn-sm btn-danger" @onclick="() => ConfirmDeleteProduct(product)">Delete</button>
+                            </Authorized>
+                        </AuthorizeView>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 
 }
 
@@ -119,7 +131,7 @@ else
                 <div class="mb-3 row">
                     <label for="productImage" class="col-sm-3 col-form-label">Image:</label>
                     <div class="col-sm-9">
-                        <InputFile OnChange="OnInputFileChange" id="productImage" />
+                        <InputFile OnChange="OnInputFileChange" id="productImage"/>
                         @if (!string.IsNullOrEmpty(previewImageUrl))
                         {
                             <img src="@previewImageUrl" alt="Preview" style="max-width:150px; max-height:150px; margin-top:10px;" />
