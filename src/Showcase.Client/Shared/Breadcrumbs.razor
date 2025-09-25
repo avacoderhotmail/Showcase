@@ -1,0 +1,35 @@
+﻿@using Microsoft.AspNetCore.Components.Routing
+
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a href="/">Home</a>
+        </li>
+
+        @foreach (var segment in Segments.Take(Segments.Count - 1))
+        {
+            <li class="breadcrumb-item">
+                <a href="@GetPathUpTo(segment)">@segment</a>
+            </li>
+        }
+
+        <li class="breadcrumb-item active" aria-current="page">
+            @Segments.LastOrDefault()
+        </li>
+    </ol>
+</nav>
+
+@code {
+    [Parameter] public string CurrentPath { get; set; }
+
+    private List<string> Segments =>
+        CurrentPath?.Trim('/')
+                   .Split('/', StringSplitOptions.RemoveEmptyEntries)
+                   .ToList() ?? new List<string>();
+
+    private string GetPathUpTo(string segment)
+    {
+        var index = Segments.IndexOf(segment);
+        return "/" + string.Join("/", Segments.Take(index + 1));
+    }
+}

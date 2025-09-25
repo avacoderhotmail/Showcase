@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Authorization
 @using Showcase.Client.Services
+@using Showcase.Client.Shared;
 @inject ApiAuthenticationStateProvider AuthStateProvider
 @inject IAuthApiService AuthApiService
 @inject NavigationManager Navigation
@@ -23,12 +24,15 @@
         </div>
 
         <article class="content px-4">
+            <Breadcrumbs CurrentPath="@RelativePath" />
             @Body
         </article>
     </main>
 </div>
 
 @code {
+    private string RelativePath => Navigation.ToBaseRelativePath(Navigation.Uri);
+
     private async Task Logout()
     {
         var token = await AuthApiService.GetTokenAsync();
