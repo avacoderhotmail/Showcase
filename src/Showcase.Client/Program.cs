@@ -59,4 +59,11 @@ builder.Services.AddHttpClient<IProductApiService, ProductApiService>(client =>
 .AddHttpMessageHandler(sp =>
     new AuthorizationMessageHandler(sp.GetRequiredService<IAuthApiService>()));
 
+builder.Services.AddHttpClient<IBreadcrumbService, BreadcrumbService>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+})
+.AddHttpMessageHandler(sp =>
+    new AuthorizationMessageHandler(sp.GetRequiredService<IAuthApiService>()));
+
 await builder.Build().RunAsync();
