@@ -10,7 +10,7 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-var apiBaseUrl = builder.Configuration["ApiBaseUrl"] ?? "https://localhost:8000";
+var apiBaseUrl = builder.Configuration["ApiBaseUrl"]; // ?? "https://localhost:8000";
 
 // --- Anonymous HttpClient (used only by AuthApiService for login/refresh) ---
 builder.Services.AddHttpClient("AnonymousApi", client =>
