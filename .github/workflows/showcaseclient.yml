@@ -12,7 +12,7 @@ on:
     branches:
     - main
 env:
-  AZURE_STATIC_WEBAPP_NAME: showcaseclient
+  AZURE_STATIC_WEBAPP_NAME: 'showcaseclient'
   APP_DIRECTORY: './src/Showcase.Client'
   API_DIRECTORY: './src/Showcase.Api'
   OUTPUT: wwwroot
@@ -49,6 +49,7 @@ jobs:
         azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
         action: close
         repo_token: ${{ secrets.GITHUB_TOKEN }}
+
 
 
 
