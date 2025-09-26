@@ -11,6 +11,11 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 var apiBaseUrl = builder.Configuration["ApiBaseUrl"]; // ?? "https://localhost:8000";
+var baseUrl = builder.Configuration["ApiBaseUrl"];
+if (string.IsNullOrWhiteSpace(baseUrl) || !Uri.IsWellFormedUriString(baseUrl, UriKind.Absolute))
+{
+    throw new InvalidOperationException($"Invalid or missing ApiBaseUrl configuration. {baseUrl}");
+}
 
 // --- Anonymous HttpClient (used only by AuthApiService for login/refresh) ---
 builder.Services.AddHttpClient("AnonymousApi", client =>
