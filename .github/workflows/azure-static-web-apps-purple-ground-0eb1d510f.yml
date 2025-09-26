@@ -46,7 +46,7 @@ jobs:
           github_id_token: ${{ steps.idtoken.outputs.result }}
       - name: Replace settings in config file
         run: |
-          sed -i "s|{{ApiBaseUrl}}|${{ secrets.API_BASE_URL }}|g" ./wwwroot/appsettings.json
+          sed -i "s|{{ApiBaseUrl}}|${{ secrets.API_BASE_URL }}|g" .src/Showcase.Client/wwwroot/appsettings.json
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
@@ -59,6 +59,7 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           action: "close"
+
 
 
 
