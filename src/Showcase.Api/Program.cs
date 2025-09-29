@@ -87,7 +87,7 @@ builder.Services.AddCors(options =>
         policy => policy
             .WithOrigins(
             "https://localhost:7286",
-            "https://purple-ground-0eb1d510f.2.azurestaticapps.net/") // Blazor WASM origin
+            "https://purple-ground-0eb1d510f.2.azurestaticapps.net") // Blazor WASM origin
             .AllowAnyMethod()
             .AllowAnyHeader());
 });
