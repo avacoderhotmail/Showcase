@@ -1,0 +1,49 @@
+name: Deploy App Service API
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build_and_deploy_api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        working-directory: src/Showcase.Api
+        run: dotnet restore
+
+      - name: Build
+        working-directory: src/Showcase.Api
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish
+        working-directory: src/Showcase.Api
+        run: dotnet publish -c Release -o publish
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: false
+          
+      - name: Deploy to App Service
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: "showcase-api"
+          slot-name: "production"
+          package: src/Showcase.Api/publish
+
+      - name: Configure DB Connection String
+        run: |
+          az webapp config connection-string set \
+            --name showcase-api \
+            --resource-group rg-showcase \
+            --settings "DefaultConnection=${{ secrets.API_DB_CONNECTION_STRING }}" \
+            --connection-string-type SQLAzure
