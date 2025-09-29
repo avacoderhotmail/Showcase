@@ -83,7 +83,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowBlazorDev",
+    options.AddPolicy("AllowClients",
         policy => policy
             .WithOrigins(
             "https://localhost:7286",
@@ -121,7 +121,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Showcase API v1"));
 }
 
-app.UseCors("AllowBlazorDev");
+app.UseCors("AllowClients");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
