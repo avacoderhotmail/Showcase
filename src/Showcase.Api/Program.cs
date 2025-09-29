@@ -124,37 +124,45 @@ foreach (var endpoint in app.Services.GetRequiredService<Microsoft.AspNetCore.Ro
 }
 
 // 8. Seed roles and admin
-using (var scope = app.Services.CreateScope())
+try
 {
-    var services = scope.ServiceProvider;
-    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
-
-    string[] roles = { "Admin", "User" };
-    foreach (var role in roles)
+    using (var scope = app.Services.CreateScope())
     {
-        if (!await roleManager.RoleExistsAsync(role))
-            await roleManager.CreateAsync(new IdentityRole(role));
-    }
+        var services = scope.ServiceProvider;
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
-    var adminEmail = builder.Configuration["AdminEmail"];
-    var adminPassword = builder.Configuration["AdminPassword"];
-    if (!string.IsNullOrEmpty(adminEmail) && !string.IsNullOrEmpty(adminPassword))
-    {
-        var adminUser = await userManager.FindByEmailAsync(adminEmail);
-        if (adminUser == null)
+        string[] roles = { "Admin", "User" };
+        foreach (var role in roles)
         {
-            adminUser = new ApplicationUser
+            if (!await roleManager.RoleExistsAsync(role))
+                await roleManager.CreateAsync(new IdentityRole(role));
+        }
+
+        var adminEmail = builder.Configuration["AdminEmail"];
+        var adminPassword = builder.Configuration["AdminPassword"];
+        if (!string.IsNullOrEmpty(adminEmail) && !string.IsNullOrEmpty(adminPassword))
+        {
+            var adminUser = await userManager.FindByEmailAsync(adminEmail);
+            if (adminUser == null)
             {
-                Email = adminEmail,
-                UserName = adminEmail,
-                DisplayName = "Administrator"
-            };
-            var result = await userManager.CreateAsync(adminUser, adminPassword);
-            if (result.Succeeded)
-                await userManager.AddToRoleAsync(adminUser, "Admin");
+                adminUser = new ApplicationUser
+                {
+                    Email = adminEmail,
+                    UserName = adminEmail,
+                    DisplayName = "Administrator"
+                };
+                var result = await userManager.CreateAsync(adminUser, adminPassword);
+                if (result.Succeeded)
+                    await userManager.AddToRoleAsync(adminUser, "Admin");
+            }
         }
     }
+}
+catch (Exception ex)
+{
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, $"An error occurred while seeding the database. {ex.Message}");
 }
 
 app.Run();
