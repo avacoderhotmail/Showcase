@@ -27,15 +27,12 @@ jobs:
         working-directory: src/Showcase.Api
         run: dotnet publish -c Release -o publish
 
-      - name: Azure Login using OIDC
+      - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: 40496934-0d25-428b-9ee5-a3fb36f0fb62
-          tenant-id: 8295f691-e97f-4244-be97-b5dbf3802e63
-          subscription-id: 9ac81532-0f20-4935-bd6c-727d5da13bc2
-          allow-no-subscriptions: true
-          auth-type: OIDC
-
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          enable-AzPSSession: false
+          
       - name: Deploy to App Service
         uses: azure/webapps-deploy@v2
         with:
