@@ -43,7 +43,7 @@ jobs:
       - name: Configure DB Connection String
         run: |
           az webapp config connection-string set \
-            --name ShowcaseApi \
+            --name showcase-api \
             --resource-group rg-showcase \
             --settings "DefaultConnection=${{ secrets.API_DB_CONNECTION_STRING }}" \
             --connection-string-type SQLAzure
