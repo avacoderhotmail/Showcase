@@ -14,6 +14,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // 1. DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -97,13 +98,17 @@ builder.Services.AddSingleton<IBlobService>(sp =>
 
 var app = builder.Build();
 
+// Listen on port from environment variable, default 8080 for App Service
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+app.Urls.Add($"http://*:{port}");
+
 // Server uploaded filed from /uploads
-var uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "uploads");
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new PhysicalFileProvider(uploadsPath),
-    RequestPath = "/uploads"
-});
+//var uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "uploads");
+//app.UseStaticFiles(new StaticFileOptions
+//{
+//    FileProvider = new PhysicalFileProvider(uploadsPath),
+//    RequestPath = "/uploads"
+//});
 
 // 7. Middleware
 if (app.Environment.IsDevelopment())
