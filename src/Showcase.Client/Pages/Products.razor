@@ -17,6 +17,12 @@
 }
 else if (products.Count == 0)
 {
+    <AuthorizeView Roles="Admin, ProductManager">
+        <Authorized>
+            <button @onclick="ShowModal" class="btn btn-sm btn-primary">+ New Product</button>
+        </Authorized>
+    </AuthorizeView>
+
     <p>No products available.</p>
 }
 else
