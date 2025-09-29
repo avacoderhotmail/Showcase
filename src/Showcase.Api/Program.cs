@@ -121,8 +121,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Showcase API v1"));
 }
 
-app.UseCors("AllowClients");
 app.UseHttpsRedirection();
+app.UseCors("AllowClients");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
