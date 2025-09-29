@@ -102,6 +102,7 @@ var app = builder.Build();
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 app.Urls.Add($"http://*:{port}");
 
+
 // Server uploaded filed from /uploads
 //var uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "uploads");
 //app.UseStaticFiles(new StaticFileOptions
