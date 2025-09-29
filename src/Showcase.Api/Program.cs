@@ -124,6 +124,8 @@ foreach (var endpoint in app.Services.GetRequiredService<Microsoft.AspNetCore.Ro
 }
 
 // 8. Seed roles and admin
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+logger.LogInformation("Starting database seeding...");
 try
 {
     using (var scope = app.Services.CreateScope())
@@ -132,15 +134,19 @@ try
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
+        loggier.loginformation("Seeding roles.");
         string[] roles = { "Admin", "User" };
         foreach (var role in roles)
         {
             if (!await roleManager.RoleExistsAsync(role))
-                await roleManager.CreateAsync(new IdentityRole(role));
+                logger.LogInformation($"Creating role: {role}");
+            await roleManager.CreateAsync(new IdentityRole(role));
         }
 
         var adminEmail = builder.Configuration["AdminEmail"];
         var adminPassword = builder.Configuration["AdminPassword"];
+        logger.LogInformation($"Admin email: {adminEmail}");
+        logger.LogInformation($"Admin Password: {adminPassword}");
         if (!string.IsNullOrEmpty(adminEmail) && !string.IsNullOrEmpty(adminPassword))
         {
             var adminUser = await userManager.FindByEmailAsync(adminEmail);
@@ -152,6 +158,7 @@ try
                     UserName = adminEmail,
                     DisplayName = "Administrator"
                 };
+                logger.LogInformation("Writing admin user to database");
                 var result = await userManager.CreateAsync(adminUser, adminPassword);
                 if (result.Succeeded)
                     await userManager.AddToRoleAsync(adminUser, "Admin");
