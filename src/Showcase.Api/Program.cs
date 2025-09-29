@@ -134,7 +134,7 @@ try
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
-        loggier.loginformation("Seeding roles.");
+        logger.LogInformation("Seeding roles.");
         string[] roles = { "Admin", "User" };
         foreach (var role in roles)
         {
@@ -168,7 +168,6 @@ try
 }
 catch (Exception ex)
 {
-    var logger = app.Services.GetRequiredService<ILogger<Program>>();
     logger.LogError(ex, $"An error occurred while seeding the database. {ex.Message}");
 }
 
