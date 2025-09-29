@@ -101,8 +101,11 @@ builder.Services.AddSingleton<IBlobService>(sp =>
 var app = builder.Build();
 
 // Listen on port from environment variable, default 8080 for App Service
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-app.Urls.Add($"http://*:{port}");
+if (app.Environment.IsProduction())
+{
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    app.Urls.Add($"http://*:{port}");
+}
 
 
 // Server uploaded filed from /uploads

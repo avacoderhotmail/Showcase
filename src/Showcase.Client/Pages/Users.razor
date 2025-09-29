@@ -195,7 +195,13 @@ else
         {
             if (isEditMode)
             {
-                newUser.Roles = selectedRoles.ToList();
+                if (!updateUser.Roles.Contains("User"))
+                {
+                    var roles = updateUser.Roles.ToList<string>();
+                    roles.Add("User");
+                    updateUser.Roles = roles;
+                }
+
                 var updated = await UserApiService.UpdateUserAsync(editingUserId, updateUser); // Implement this API method
                 if (updated != null)
                 {
@@ -215,6 +221,13 @@ else
             }
             else
             {
+                if(!newUser.Roles.Contains("User"))
+                {
+                    var roles = newUser.Roles.ToList<string>();
+                    roles.Add("User");
+                    newUser.Roles = roles;
+                };
+
                 var created = await UserApiService.CreateUserAsync(newUser);
                 if (created != null)
                 {
