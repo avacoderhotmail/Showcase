@@ -22,7 +22,7 @@ jobs:
         run: dotnet build Showcase.sln --configuration Release --no-restore
 
       - name: Publish API
-        run: dotnet publish src/Showcase.Api/Showcase.Api.csproj -c Release -o publish
+        run: dotnet publish src/Showcase.Api/Showcase.Api.csproj -c Release -o ${{ github.workspace }}/src/Showcase.Api/publish
 
       - name: Login to Azure
         uses: azure/login@v2
