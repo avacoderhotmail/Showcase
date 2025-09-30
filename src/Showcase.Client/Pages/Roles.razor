@@ -4,25 +4,40 @@
 @inject IRoleApiService RoleService
 @attribute [Authorize(Roles = "Admin, UserManager")]
 
-<h3>Roles</h3>
+<div class="border rounded p-3 mb-3">
+    <h3>Roles</h3>
 
-@if (roles == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <ul>
-        @foreach (var role in roles)
-        {
-            <li>@role</li>
-        }
-    </ul>
-}
-
-<h4>Create New Role</h4>
-<input @bind="newRoleName" placeholder="Role name" />
-<button @onclick="CreateRole" class="btn btn-sm btn-primary">Create</button>
+    @if (roles == null)
+    {
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+            <p><em>Loading...</em></p>
+        </div>
+    }
+    else
+    {
+        <ul>
+            @foreach (var role in roles)
+            {
+                <li>@role</li>
+            }
+        </ul>
+    }
+</div>
+<div class="border rounded p-3 mb-3">
+    <h4>Create New Role</h4>
+    <input class="mb-3"
+           @bind-value="newRoleName"
+           @bind-value:event="oninput"
+           placeholder="Role name" />
+    <div>
+        <button @onclick="CreateRole"
+                class="btn btn-sm btn-primary"
+                disabled="@string.IsNullOrWhiteSpace(newRoleName)">
+            Create Role
+        </button>
+    </div>
+</div>
 
 @if (!string.IsNullOrEmpty(message))
 {
