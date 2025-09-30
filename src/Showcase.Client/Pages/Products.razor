@@ -13,13 +13,19 @@
 
 @if (products == null)
 {
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+
     <p>Loading...</p>
 }
 else if (products.Count == 0)
 {
     <AuthorizeView Roles="Admin, ProductManager">
         <Authorized>
-            <button @onclick="ShowModal" class="btn btn-sm btn-primary">+ New Product</button>
+            <div class="d-flex justify-content-end mb-3">
+                <button @onclick="ShowModal" class="btn btn-sm btn-primary">+ New Product</button>
+            </div>
         </Authorized>
     </AuthorizeView>
 
@@ -29,7 +35,9 @@ else
 {
     <AuthorizeView Roles="Admin, ProductManager">
         <Authorized>
-            <button @onclick="ShowModal" class="btn btn-sm btn-primary">+ New Product</button>
+            <div class="d-flex justify-content-end mb-3">
+                <button @onclick="ShowModal" class="btn btn-sm btn-primary">+ New Product</button>
+            </div>
         </Authorized>
     </AuthorizeView>
     <div class="row row-cols-1 row-cols-md-3 g-4">

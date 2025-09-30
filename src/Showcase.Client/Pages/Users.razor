@@ -13,6 +13,10 @@
 
 @if (loading)
 {
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+
     <p>Loading users...</p>
 }
 else if (errorMessage != null)
@@ -21,7 +25,9 @@ else if (errorMessage != null)
 }
 else
 {
-    <button @onclick="ShowModal" class="btn btn-sm btn-primary">+ New User</button>
+    <div class="d-flex justify-content-end mb-3">
+        <button @onclick="ShowModal" class="btn btn-sm btn-primary">+ New User</button>
+    </div>
     <table class="table">
         <thead>
             <tr>
@@ -221,12 +227,13 @@ else
             }
             else
             {
-                if(!newUser.Roles.Contains("User"))
+                if (!newUser.Roles.Contains("User"))
                 {
                     var roles = newUser.Roles.ToList<string>();
                     roles.Add("User");
                     newUser.Roles = roles;
-                };
+                }
+                ;
 
                 var created = await UserApiService.CreateUserAsync(newUser);
                 if (created != null)
