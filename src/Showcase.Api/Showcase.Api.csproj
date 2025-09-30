@@ -28,13 +28,17 @@
   <ItemGroup>
     <!-- References to other projects -->
     <ProjectReference Include="..\Showcase.Infrastructure\Showcase.Infrastructure.csproj" />
-    <ProjectReference Include="..\Showcase.Application\Showcase.Application.csproj" />
     <ProjectReference Include="..\Showcase.Domain\Showcase.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Properties\PublishProfiles\" />
     <Folder Include="uploads\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Showcase.Application.csproj" />
+    <None Include="Showcase.Application.csproj.user" />
   </ItemGroup>
 
 </Project>
