@@ -16,16 +16,13 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore dependencies
-        working-directory: src/Showcase.Api
-        run: dotnet restore
+        run: dotnet restore Showcase.sln
 
-      - name: Build
-        working-directory: src/Showcase.Api
-        run: dotnet build --configuration Release --no-restore
+      - name: Build solution
+        run: dotnet build Showcase.sln --configuration Release --no-restore
 
-      - name: Publish
-        working-directory: src/Showcase.Api
-        run: dotnet publish -c Release -o publish
+      - name: Publish API
+        run: dotnet publish src/Showcase.Api/Showcase.Api.csproj -c Release -o ${{ github.workspace }}/src/Showcase.Api/publish
 
       - name: Login to Azure
         uses: azure/login@v2
