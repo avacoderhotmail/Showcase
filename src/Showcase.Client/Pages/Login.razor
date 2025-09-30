@@ -13,17 +13,28 @@
 <div class="mb-2">
     <input class="form-control" @bind="Model.Password" type="password" placeholder="Password" />
 </div>
-<button class="btn btn-primary" @onclick="HandleLogin">Login</button>
+<button class="btn btn-primary"
+        @onclick="HandleLogin"
+        disabled="@isLoading">
+    @(isLoading ? "Logging in..." : "Login")
+</button>
+
 
 @if (!string.IsNullOrEmpty(Message))
 {
     <div class="mt-2 text-danger">@Message</div>
 }
-
+@if (isLoading)
+{
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
 @code {
     // Use a mutable model for binding
     private LoginModel Model = new LoginModel();
     private string? Message;
+    private bool isLoading = false;
 
     private async Task HandleLogin()
     {
@@ -31,6 +42,8 @@
 
         try
         {
+            isLoading = true;
+
             var result = await AuthService.LoginAsync(new LoginRequestDto(Model.Email, Model.Password));
 
             if (result != null && !string.IsNullOrEmpty(result.Token))
@@ -55,6 +68,10 @@
         catch (Exception ex)
         {
             Message = $"Login error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 
