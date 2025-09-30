@@ -16,10 +16,10 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore dependencies
-        run: dotnet restore src/Showcase.sln
+        run: dotnet restore Showcase.sln
 
       - name: Build solution
-        run: dotnet build src/Showcase.sln --configuration Release --no-restore
+        run: dotnet build Showcase.sln --configuration Release --no-restore
 
       - name: Publish API
         run: dotnet publish src/Showcase.Api/Showcase.Api.csproj -c Release -o publish
