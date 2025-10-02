@@ -147,7 +147,7 @@ try
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
         logger.LogInformation("Seeding roles.");
-        string[] roles = { "Admin", "User" };
+        string[] roles = { "Admin", "User", "ProductManager", "UserManager" };
         foreach (var role in roles)
         {
             if (!await roleManager.RoleExistsAsync(role))

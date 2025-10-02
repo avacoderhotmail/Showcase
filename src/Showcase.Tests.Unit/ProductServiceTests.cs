@@ -7,6 +7,7 @@ using Showcase.Infrastructure.Services;
 using Showcase.Contracts.Contracts.Product;
 using Showcase.Domain.Entities;
 using Microsoft.Extensions.Configuration;
+using Showcase.Application.Interfaces;
 using System.IO;
 using System.Threading.Tasks;
 

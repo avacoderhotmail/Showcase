@@ -10,15 +10,21 @@ using Showcase.Application.Interfaces;
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _service;
+    private readonly IBlobService _blobService;
 
-    public ProductsController(IProductService service)
+    public ProductsController(IProductService service, IBlobService blobService)
     {
         _service = service;
+        _blobService = blobService;
     }
 
     [HttpGet]
     [Authorize(Roles = "Admin,User")]
-    public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
+    public async Task<IActionResult> GetAll()
+    { 
+        var products = await _service.GetAllAsync();
+        return Ok(products);
+    }
 
     [HttpGet("{id}")]
     [Authorize(Roles = "Admin,User")]
@@ -51,4 +57,26 @@ public class ProductsController : ControllerBase
         var success = await _service.DeleteAsync(id);
         return success ? NoContent() : NotFound();
     }
+
+    [HttpPost("upload")]
+    [Authorize(Roles = "Admin,ProductManager")]
+    public async Task<IActionResult> Upload(IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+            return BadRequest("No file uploaded.");
+
+        var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+        var uri = await _blobService.UploadAsync(file, fileName);
+
+        return Ok(new { fileName, uri });
+    }
+
+    [HttpGet("image/{fileName}")]
+    [Authorize(Roles = "Admin,User")]
+    public IActionResult GetImage(string fileName)
+    {
+        var sasUri = _blobService.GetSasUri(fileName, 60); // 1 hour
+        return Ok(new { uri = sasUri });
+    }
+
 }

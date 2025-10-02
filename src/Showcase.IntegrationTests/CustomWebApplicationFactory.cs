@@ -8,7 +8,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Showcase.Api;
 using Showcase.Infrastructure.Data;
-using Showcase.Infrastructure.Services;
+using Showcase.Application.Interfaces;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;

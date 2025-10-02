@@ -33,37 +33,42 @@ namespace Showcase.Infrastructure.Services
                 Price = dto.Price
             };
 
-            // Handle image upload
-            if (imageFile != null)
+            if (imageFile != null && imageFile.Length > 0)
             {
-                // Generate a unique file name
-                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(imageFile.FileName)}";
+                // Generate a unique blob name
+                var blobName = $"{Guid.NewGuid()}{Path.GetExtension(imageFile.FileName)}";
 
-                // Upload to Azure Blob Storage
+                // Upload to blob storage
                 using var stream = imageFile.OpenReadStream();
-                var fileUrl = await _blobService.UploadFileAsync(stream, fileName);
+                await _blobService.UploadFileAsync(stream, blobName);
 
-                // Option 1: store the blob URL in the database
-                product.ImageFileName = fileUrl;
+                // Store blob name in DB
+                product.ImageFileName = blobName;
             }
 
             _db.Products.Add(product);
             await _db.SaveChangesAsync();
 
-            return MapToReadDto(product, _baseUrl);
+            // Return DTO with temporary SAS URL for client
+            return await MapToReadDtoWithSasAsync(product);
         }
-
         public async Task<IEnumerable<ProductReadDto>> GetAllAsync()
         {
-            return await _db.Products
-                .Select(p => MapToReadDto(p, _baseUrl))
-                .ToListAsync();
+            var products = await _db.Products.ToListAsync();
+
+            var result = new List<ProductReadDto>();
+            foreach (var product in products)
+            {
+                result.Add(await MapToReadDtoWithSasAsync(product));
+            }
+
+            return result;
         }
 
         public async Task<ProductReadDto?> GetByIdAsync(int id)
         {
             var product = await _db.Products.FindAsync(id);
-            return product == null ? null : MapToReadDto(product, _baseUrl);
+            return product == null ? null : await MapToReadDtoWithSasAsync(product);
         }
 
         public async Task<ProductReadDto?> UpdateAsync(int id, ProductUpdateDto dto, IFormFile? imageFile = null)
@@ -95,7 +100,7 @@ namespace Showcase.Infrastructure.Services
             }
 
             await _db.SaveChangesAsync();
-            return MapToReadDto(product, _baseUrl);
+            return await MapToReadDtoWithSasAsync(product);
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -114,13 +119,34 @@ namespace Showcase.Infrastructure.Services
             return true;
         }
 
-        private static ProductReadDto MapToReadDto(Product product, string baseUrl)
-        {
-            var imageUrl = string.IsNullOrEmpty(product.ImageFileName)
-                ? null
-                : product.ImageFileName; // full blob URL from Azure
+        //private static ProductReadDto MapToReadDto(Product product, string baseUrl)
+        //{
+        //    var imageUrl = string.IsNullOrEmpty(product.ImageFileName)
+        //        ? null
+        //        : product.ImageFileName; // full blob URL from Azure
 
-            return new ProductReadDto
+        //    return new ProductReadDto
+        //    {
+        //        Id = product.Id,
+        //        Name = product.Name,
+        //        Description = product.Description,
+        //        Price = product.Price,
+        //        CreatedAt = product.CreatedAt,
+        //        ImageUrl = imageUrl
+        //    };
+        //}
+
+        // Helper to map to DTO with SAS URL
+        private async Task<ProductReadDto> MapToReadDtoWithSasAsync(Product product)
+        {
+            string? imageUrl = null;
+            if (!string.IsNullOrEmpty(product.ImageFileName))
+            {
+                // Generate a temporary SAS URI for private blob access
+                imageUrl = await _blobService.GetSasUri(product.ImageFileName);
+            }
+
+            ProductReadDto dto = new ProductReadDto
             {
                 Id = product.Id,
                 Name = product.Name,
@@ -129,6 +155,8 @@ namespace Showcase.Infrastructure.Services
                 CreatedAt = product.CreatedAt,
                 ImageUrl = imageUrl
             };
+
+            return dto;
         }
     }
 
