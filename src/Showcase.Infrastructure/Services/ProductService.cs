@@ -110,31 +110,13 @@ namespace Showcase.Infrastructure.Services
 
             if (!string.IsNullOrEmpty(product.ImageFileName))
             {
-                var oldFileName = Path.GetFileName(new Uri(product.ImageFileName).AbsolutePath);
-                await _blobService.DeleteFileAsync(oldFileName);
+                await _blobService.DeleteFileAsync(product.ImageFileName);
+                _db.Products.Remove(product);
+                await _db.SaveChangesAsync();
+                return true;
             }
-
-            _db.Products.Remove(product);
-            await _db.SaveChangesAsync();
-            return true;
+            return false;
         }
-
-        //private static ProductReadDto MapToReadDto(Product product, string baseUrl)
-        //{
-        //    var imageUrl = string.IsNullOrEmpty(product.ImageFileName)
-        //        ? null
-        //        : product.ImageFileName; // full blob URL from Azure
-
-        //    return new ProductReadDto
-        //    {
-        //        Id = product.Id,
-        //        Name = product.Name,
-        //        Description = product.Description,
-        //        Price = product.Price,
-        //        CreatedAt = product.CreatedAt,
-        //        ImageUrl = imageUrl
-        //    };
-        //}
 
         // Helper to map to DTO with SAS URL
         private async Task<ProductReadDto> MapToReadDtoWithSasAsync(Product product)
