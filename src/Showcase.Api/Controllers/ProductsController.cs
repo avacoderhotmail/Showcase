@@ -58,18 +58,18 @@ public class ProductsController : ControllerBase
         return success ? NoContent() : NotFound();
     }
 
-    [HttpPost("upload")]
-    [Authorize(Roles = "Admin,ProductManager")]
-    public async Task<IActionResult> Upload(IFormFile file)
-    {
-        if (file == null || file.Length == 0)
-            return BadRequest("No file uploaded.");
+    //[HttpPost("upload")]
+    //[Authorize(Roles = "Admin,ProductManager")]
+    //public async Task<IActionResult> Upload(IFormFile file)
+    //{
+    //    if (file == null || file.Length == 0)
+    //        return BadRequest("No file uploaded.");
 
-        var fileName = $"{Guid.NewGuid()}_{file.FileName}";
-        var uri = await _blobService.UploadAsync(file, fileName);
+    //    var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+    //    var uri = await _blobService.UploadAsync(file, fileName);
 
-        return Ok(new { fileName, uri });
-    }
+    //    return Ok(new { fileName, uri });
+    //}
 
     [HttpGet("image/{fileName}")]
     [Authorize(Roles = "Admin,User")]

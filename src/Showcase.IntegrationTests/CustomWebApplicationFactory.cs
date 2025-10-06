@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
+using Microsoft.AspNetCore.Http;
 
 namespace Showcase.IntegrationTests
 {
@@ -70,10 +71,11 @@ namespace Showcase.IntegrationTests
 
                 // Add a mock IBlobService
                 var blobMock = new Mock<IBlobService>();
-                blobMock.Setup(b => b.UploadFileAsync(It.IsAny<Stream>(), It.IsAny<string>()))
+                blobMock.Setup(b => b.UploadAsync(It.IsAny<IFormFile>(), It.IsAny<string>()))
                         .ReturnsAsync("https://fake.blob.core.windows.net/uploads/fake.jpg");
                 blobMock.Setup(b => b.DeleteFileAsync(It.IsAny<string>()))
                         .Returns(Task.CompletedTask);
+                blobMock.Setup(b => b.GetSasUri(It.IsAny<string>(), It.IsAny<int>())).ReturnsAsync("https://fake.blob.core.windows.net/uploads/fake.jpg?sasToken");
 
                 services.AddScoped(_ => blobMock.Object);
 

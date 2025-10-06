@@ -111,11 +111,10 @@ namespace Showcase.Infrastructure.Services
             if (!string.IsNullOrEmpty(product.ImageFileName))
             {
                 await _blobService.DeleteFileAsync(product.ImageFileName);
-                _db.Products.Remove(product);
-                await _db.SaveChangesAsync();
-                return true;
             }
-            return false;
+            _db.Products.Remove(product);
+            await _db.SaveChangesAsync();
+            return true;
         }
 
         // Helper to map to DTO with SAS URL
