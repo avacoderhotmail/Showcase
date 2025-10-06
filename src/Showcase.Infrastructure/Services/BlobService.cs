@@ -52,9 +52,10 @@ namespace Showcase.Infrastructure.Services
 
         public async Task<string> GetSasUri(string blobName, int expiryMinutes = 60)
         {
-            var tokenCredential = new DefaultAzureCredential();
-            var token = await tokenCredential.GetTokenAsync(new TokenRequestContext(new[] { "https://storage.azure.com/.default" }));
-            Console.WriteLine($"Access token issued to: {token.Token}");
+            // This is how to get an OAuth token if needed and it's how I found out why I was getting not authorized working from dev
+            //var tokenCredential = new DefaultAzureCredential();
+            //var token = await tokenCredential.GetTokenAsync(new TokenRequestContext(new[] { "https://storage.azure.com/.default" }));
+            //Console.WriteLine($"Access token issued to: {token.Token}");
 
             // Check if blob exists
             var blobClient = _container.GetBlobClient(blobName);
