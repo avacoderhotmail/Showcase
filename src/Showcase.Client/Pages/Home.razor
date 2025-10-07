@@ -1,19 +1,34 @@
 ﻿@page "/"
 
 <PageTitle>J.T. Pierce Showcase Home</PageTitle>
-<div class="d-flex flex-column align-items-start mb-3 posion-relative"
+<div class="d-flex align-items-center justify-content-start mb-3 position-relative"
      style="background: url('images/Background.png');
      background-size: cover;
      background-position: center;
      background-repeat: no-repeat;
      width: 100%;
      min-height: 300px;
-     padding-left: 10%">
-    <img src="images/profile.png"
-         alt="Profile image of J.T. Pierce"
-         style="width:200px; height:auto; border-radius:5%; margin-top: 10px;" />
+     padding: 40px 10%;">
+
+    <!-- Left column: Profile image -->
+    <div class="me-4">
+        <img src="images/profile.png"
+             alt="Profile image of J.T. Pierce"
+             style="width:200px; height:auto; border-radius:5%;" />
+    </div>
+
+    <!-- Right column: Text content -->
+    <div class="text-dark">
+        <h2>J.T. Pierce</h2>
+        <p class="mb-0">
+            Senior Software Developer specializing in Azure architecture, cloud-native solutions,
+            and modern web application design.
+        </p>
+        <p>
+            This showcase demonstrates my skills in building secure, scalable, and user-friendly applications.
+        </p>
+    </div>
 </div>
-<div>My name is J.T. Pierce and I am a software developer with a passion for my craft. This project is meant to showcase some of my skills and experience in developing applications using modern technologies.</div>
 <div>Try logging in with the following accounts to see how the interface changes with each role set:</div>
 <table class="table table-striped">
     <thead>
