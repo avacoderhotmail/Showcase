@@ -11,7 +11,7 @@
         <NavMenu />
     </div>
 
-    <main>
+    <main class="main-layout">
         <div class="top-row px-4">
             <AuthorizeView>
                 <NotAuthorized>
@@ -27,7 +27,14 @@
             <Breadcrumbs CurrentPath="@RelativePath" />
             @Body
         </article>
+
+        <footer class="app-footer">
+            <div class="container">
+                <p>&copy; 2025 J.T. Pierce. All rights reserved.</p>
+            </div>
+        </footer>
     </main>
+
 </div>
 
 @code {
