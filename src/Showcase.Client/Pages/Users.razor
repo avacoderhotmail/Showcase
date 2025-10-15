@@ -77,7 +77,7 @@ else
                 <div class="mb-3 row">
                     <label for="displayName" class="col cold-form-label">Display Name:</label>
                     <div class="col-sm-9">
-                        <InputText id="displayName" class="form-control" @bind-Value="updateUser.DisplayName" />
+                        <input id="displayName" class="form-control" @bind-value="updateUser.DisplayName" @ref="displayNameRef"/>
                     </div>
                 </div>
                 <div class="mb-3 row">
@@ -102,7 +102,7 @@ else
                 <div class="mb-3 row">
                     <label for="email" class="col-sm-3 col-form-label">Email:</label>
                     <div class="col-sm-9">
-                        <InputText id="email" class="form-control" @bind-Value="newUser.Email" />
+                        <input type="text" id="email" class="form-control" @bind-value="newUser.Email" @ref="emailRef" />
                     </div>
                 </div>
 
@@ -171,15 +171,16 @@ else
     private bool isEditMode = false;
     private string? editingUserId = null;
     private List<string> availableRoles = new() { "Admin", "User" };
-    private HashSet<string> selectedRoles = new();
-    private UserDto? userToDelete;
+    private HashSet<string> selectedRoles = new() { "User" };
+    private ElementReference emailRef;
+    private ElementReference displayNameRef;
 
     private void ShowModal()
     {
         newUser = new CreateUserDto
-            {
-                Roles = new List<string>()
-            };
+        {
+            Roles = new List<string>()
+        };
         selectedRoles.Clear();
         isEditMode = false;
         isModalOpen = true;
@@ -202,6 +203,21 @@ else
         }
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (isModalOpen && !firstRender)
+        {
+            if (isEditMode)
+            {
+                await displayNameRef.FocusAsync();
+            }
+            else
+            {
+                await emailRef.FocusAsync();
+            }
+        }
+    }
+    
     private void CloseModal() => isModalOpen = false;
 
     private bool isSubmitting = false;
@@ -286,7 +302,7 @@ else
             newUser.Roles = selectedRoles.ToList();
     }
 
-    private void EditUser(UserDto user)
+    private async Task EditUser(UserDto user)
     {
         isEditMode = true;
         editingUserId = user.Id;
