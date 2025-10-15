@@ -33,11 +33,20 @@
             <span>Login</span>
         }
     </button>
-    <div>
-        <em><strong>NOTE:</strong></em> The first attempt to log in may timeout waiting for API cold start. Just hit the Login button again.
-    </div>
+
+    @if (!string.IsNullOrEmpty(Message))
+    {
+        <div class="mt-4 text-danger">@Message</div>
+    }
+
+
+    <hr class="my-4" />
+
     <div>
         <p>Try logging in with each of the accounts in the table below to see how the interface changes with each role:</p>
+    </div>
+    <div>
+        <em><strong>NOTE:</strong></em> The first attempt to log in may timeout waiting for API cold start. Just hit the Login button again.
     </div>
     <table class="table table-striped">
         <thead>
@@ -71,11 +80,6 @@
         </tbody>
     </table>
 </EditForm>
-
-@if (!string.IsNullOrEmpty(Message))
-{
-    <div class="mt-2 text-danger">@Message</div>
-}
 
 
 @code {

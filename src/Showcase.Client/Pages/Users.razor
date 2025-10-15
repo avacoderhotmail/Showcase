@@ -25,7 +25,7 @@ else if (errorMessage != null)
 else
 {
     <div class="d-flex justify-content-end mb-3">
-        <button @onclick="ShowModal" class="btn btn-sm btn-primary">+ New User</button>
+        <button @onclick="ShowModal" class="btn btn-sm btn-primary text-white">👤 New User</button>
     </div>
     <table class="table">
         <thead>
@@ -165,10 +165,14 @@ else
     private HashSet<string> selectedRoles = new();
     private UserDto? userToDelete;
 
-
     private void ShowModal()
     {
-        newUser = new CreateUserDto();
+        newUser = new CreateUserDto
+            {
+                Roles = new List<string>()
+            };
+        selectedRoles.Clear();
+        isEditMode = false;
         isModalOpen = true;
     }
 
@@ -207,7 +211,7 @@ else
                     updateUser.Roles = roles;
                 }
 
-                var updated = await UserApiService.UpdateUserAsync(editingUserId, updateUser); // Implement this API method
+                var updated = await UserApiService.UpdateUserAsync(editingUserId, updateUser);
                 if (updated != null)
                 {
                     var oldUser = users.FirstOrDefault(u => u.Id == editingUserId);
@@ -276,7 +280,7 @@ else
     private void EditUser(UserDto user)
     {
         isEditMode = true;
-        editingUserId = user.Id; // adjust to your actual UserDto ID property
+        editingUserId = user.Id;
         updateUser = new UpdateUserDto
         {
             DisplayName = user.DisplayName,
@@ -300,7 +304,7 @@ else
         isSubmitting = true;
         try
         {
-            var result = await UserApiService.DeleteUserAsync(user.Id); // Implement this API
+            var result = await UserApiService.DeleteUserAsync(user.Id);
             if (result)
             {
                 users.Remove(user);
